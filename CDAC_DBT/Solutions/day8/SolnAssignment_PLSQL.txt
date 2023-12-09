@@ -1,0 +1,286 @@
+
+*******************************************************PL/SQL Basics**********************************************************************
+
+>>>>>>>>>>Practice 1:
+	Evaluate each of the following declarations.
+	Determine which of them are not legal and explain why?
+
+	 a.	 DECLARE    v_id INT(4);
+     b.  DECLARE    v_x , v_y,  v_z  VARCHAR(10);
+     c.  DECLARE   v_birthdate DATE;
+     d.  DECLARE   v_in_stock   BOOLEAN default 1;  
+	 
+ans--> b IS INCORRECT WAY
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 2:
+	What will be the output of the following program?
+
+	BEGIN
+	DECLARE v_data INT(7);
+		SELECT v_data;
+	END;
+	
+ans-->
+	
+mysql> call d08lab.assgn_PLSQL_Q2();
++--------+
+| v_data |
++--------+
+|   NULL |
++--------+
+1 row in set (0.00 sec)
+
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 3:
+	Consider the below PL/SQL code. What will be the values of the variables v_weight,
+	v_message and v_new_locn at point 1 and point 2
+
+
+    BEGIN
+      	DECLARE  v_weight INT (3) DEFAULT 600;
+        DECLARE v_message VARCHAR2(255) DEFAULT 'Product 10012';
+
+		BEGIN
+      		DECLARE  v_weight INT(3) DEFAULT 1;
+      		DECLARE  v_message VARCHAR2 (25) DEFAULT 'Product 11001';
+      		DECLARE  v_new_locn VARCHAR2(25) DEFAULT 'Europe';
+   		
+    		SET v_weight = v_weight +1;
+			SET v_new_locn ='Western ' ||v_new_locn; 
+			--  Point 1
+
+		END; 
+	SET v_weight=v_weight + 1;
+	SET v_message=v_message || ' is in stock';
+	-- Point 2
+	END; 
+
+ans-->
+
+AT POINT 1
+	VALUE OF V_WEIGHT IS : 2
+	VALUE OF V_MESSAGE IS : Product 11001
+	VALUE OF V_NEW_LOC IS : Western Europe 
+
+AT POINT 2
+	VALUE OF V_WEIGHT IS  : 601
+	VALUE OF V_MESSAGE IS : PRODUCT 10012 IS IN STOCK
+	VALUE OF V_NEW_LOC IS : NOT ACCESSIBLE AT POINT 2 AS IT IS VARIABLE DECLARED INSIDE BLOCK CAN'T BE ACCESSED OUTSIDE SUBBLOCK
+
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 4:  
+	Write a PL/SQL block that accepts values of two non zero integer Ints from user.
+	The block performs the following operation (first_Int/second_Int + second_Int). 
+	The result of the operation should be stored in a PL/SQL variable and also displayed on the screen.
+
+ans-->
+
+USE d08lab;
+DELIMITER // 
+DROP PROCEDURE IF EXISTS assgn_PLSQL_Q4 //
+CREATE PROCEDURE assgn_PLSQL_Q4(X INT , Y INT)
+LABEL:BEGIN
+		DECLARE RESULT INT;
+		
+        IF X=0 OR Y=0 THEN
+			LEAVE LABEL;
+        END IF;
+		
+        SET RESULT= X/Y + Y ;
+		SELECT RESULT;
+END //
+DELIMITER ;
+
+mysql> call d08lab.assgn_PLSQL_Q4(144,12);
++--------+
+| RESULT |
++--------+
+|     24 |
++--------+
+1 row in set (0.00 sec)
+Query OK, 0 rows affected (0.01 sec)
+
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 5:
+	Declare two variables named MAX_SALARY and MIN_SALARY that are of data type INT.
+	Write a PL/SQL block that accepts deptno value from a user, selects the maximum salary and minimum salary 
+	paid in the department, from the EMP table and stores the corresponding values in MAX_SALARY and MIN_SALARY respectively. 
+	Use appropriate command to see the modified values of MAX_SALARY and MIN_SALARY
+
+ans-->
+
+USE d08lab;
+DELIMITER // 
+DROP PROCEDURE IF EXISTS assgn_PLSQL_Q5 //
+CREATE PROCEDURE assgn_PLSQL_Q5(ID INT)
+BEGIN
+      	DECLARE MAX_SALARY INT;
+        DECLARE MIN_SALARY INT;
+        
+	SELECT MAX(SALARY),MIN(SALARY) INTO MAX_SALARY,MIN_SALARY FROM humanresource.employees WHERE department_id=ID;
+	SELECT DEPARTMENT_ID,DEPARTMENT_NAME,MAX_SALARY,MIN_SALARY FROM humanresource.departments WHERE department_id=ID;	
+END //
+DELIMITER ;
+
+mysql> call d08lab.assgn_PLSQL_Q5(50);
++---------------+-----------------+------------+------------+
+| DEPARTMENT_ID | DEPARTMENT_NAME | MAX_SALARY | MIN_SALARY |
++---------------+-----------------+------------+------------+
+|            50 | Shipping        |       8200 |       2100 |
++---------------+-----------------+------------+------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 6: 
+	Write a PL/SQL block that accepts employeeId Int from a user and retrieves the salary for the employee from the EMP table. 
+	It determines the salary class as per the following criteria and displays the salary and salary class on the screen
+	Criteria for deciding salary class: 
+	•	If the salary is less than 2500, then it comes under the class 'LOW'
+	•	If the salary is greater than or equal to  2500 and less than 5000, then it comes under class 'MEDIUM'.
+	•	If the salary is greater than or equal to 5000, then it comes under class 'HIGH'
+
+ans-->
+
+USE d08lab;
+DELIMITER // 
+DROP PROCEDURE IF EXISTS assgn_PLSQL_Q6 //
+CREATE PROCEDURE assgn_PLSQL_Q6(EID INT)
+BEGIN
+	DECLARE FULL_NAME VARCHAR(40);
+	DECLARE SAL DECIMAL(8,2);
+    DECLARE SAL_CLASS VARCHAR(6);
+	SELECT CONCAT(first_name,' ',last_name),salary INTO FULL_NAME,SAL 
+		FROM humanresource.employees WHERE employee_id=EID;
+	IF SAL < 2500 THEN
+		SET SAL_CLASS = 'LOW';
+    ELSEIF SAL < 5000 THEN
+		SET SAL_CLASS = 'MEDIUM';
+	ELSEIF SAL > 5000 THEN
+		SET SAL_CLASS = 'HIGH';
+    ELSE
+		SET SAL_CLASS = NULL;
+    END IF;    
+    
+    SELECT FULL_NAME,SAL AS SALARY,SAL_CLASS AS CLASS;
+END //
+DELIMITER ;
+
+mysql> call d08lab.assgn_plsql_q6(132);
++-----------+---------+-------+
+| FULL_NAME | SALARY  | CLASS |
++-----------+---------+-------+
+| TJ Olson  | 2100.00 | LOW   |
++-----------+---------+-------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 7:
+	Write a PL/SQL block that accepts an integer value between 1 and 12 from a user and displays the name of the corresponding month.
+	If the Int input  is not in the range +1 to +12 then the block should display the message “Invalid Month” on the screen
+
+
+ans-->
+
+USE d08lab;
+DELIMITER // 
+DROP PROCEDURE IF EXISTS assgn_PLSQL_Q7 //
+CREATE PROCEDURE assgn_PLSQL_Q7(MON INT)
+LABEL:BEGIN
+	DECLARE MONTH_NAME VARCHAR(15);
+	
+	IF MON < 1 OR MON>12 THEN
+		SELECT 'INVALID MONTH' AS ERROR;	
+		LEAVE LABEL;
+    END IF;    
+    
+    SELECT MONTHNAME(str_to_date(MON,'%m')) AS 'MONTH';
+END LABEL //
+DELIMITER ;
+
+mysql> call d08lab.assgn_plsql_q7(12);
++----------+
+| MONTH    |
++----------+
+| December |
++----------+
+1 row in set (0.00 sec)
+Query OK, 0 rows affected (0.01 sec)
+mysql> call d08lab.assgn_plsql_q7(13);
++---------------+
+|  ERROR        | 
++---------------+
+| INVALID MONTH |
++---------------+
+1 row in set (0.00 sec)
+Query OK, 0 rows affected (0.00 sec)
+
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 8:
+	Write a PL/SQL block that accepts employee Int from a user. Declare a PL/SQL record to store the employee Int, employee name,
+	department Int and the department name of the employee. Retrieve the values of these columns for the employee from the EMP 
+	and DEPT tables and display the employee name and the corresponding department name on the screen.
+
+ans-->
+
+USE d08lab;
+DELIMITER // 
+DROP PROCEDURE IF EXISTS assgn_PLSQL_Q8 //
+CREATE PROCEDURE assgn_PLSQL_Q8(EID INT)
+BEGIN
+	DECLARE FULL_NAME VARCHAR(40);
+    DECLARE DEPT_ID INT;
+    DECLARE DEPT_NAME VARCHAR(30);
+    
+	SELECT concat(first_name,' ',last_name),department_id INTO FULL_NAME,DEPT_ID
+		FROM humanresource.employees WHERE employee_id = EID;
+	SELECT department_name INTO DEPT_NAME 
+		FROM humanresource.departments where department_id= DEPT_ID;
+
+	SELECT EID AS EMPLOYEE_ID,FULL_NAME,DEPT_ID,DEPT_NAME;
+END //
+DELIMITER ;
+
+mysql> call d08lab.assgn_plsql_q8(132);
++-------------+-----------+---------+-----------+
+| EMPLOYEE_ID | FULL_NAME | DEPT_ID | DEPT_NAME |
++-------------+-----------+---------+-----------+
+|         132 | TJ Olson  |      50 | Shipping  |
++-------------+-----------+---------+-----------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 9:
+	Write a PL/SQL block to add a department row in the DEPT table with the following values for columns
+	a.	The block retrieves the maximum value of deptno from the dept table and adds 1 to it to generate the value of deptno 
+	b.	Dname  value should be  'Education'
+	c.	Loc value should be NULL
+     
+ans-->
+
+USE d08lab;
+DELIMITER // 
+DROP PROCEDURE IF EXISTS assgn_PLSQL_Q9 //
+CREATE PROCEDURE assgn_PLSQL_Q9()
+BEGIN
+    DECLARE DEPT_ID INT;
+
+	SELECT MAX(department_id) INTO DEPT_ID
+		FROM humanresource.departments;
+	INSERT INTO humanresource.departments VALUES (DEPT_ID+1,'EDUCATION',NULL,NULL);
+END //
+DELIMITER ;		  
+
+mysql> SELECT * FROM humanresource.departments ORDER BY DEPARTMENT_ID DESC LIMIT 1 ;
++---------------+-----------------+------------+-------------+
+| department_id | department_name | manager_id | location_id |
++---------------+-----------------+------------+-------------+
+|           271 | EDUCATION       |       NULL |        NULL |
++---------------+-----------------+------------+-------------+
+1 row in set (0.00 sec)
+------------------------------------------------------------------------------------------------------------------------------------------

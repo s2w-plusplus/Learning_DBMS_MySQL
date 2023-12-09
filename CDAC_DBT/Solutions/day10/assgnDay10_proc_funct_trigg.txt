@@ -1,0 +1,581 @@
+-------------------------------------------------------------------------------------------------------------
+						**** Subprograms (Procedures and Functions) ****
+-------------------------------------------------------------------------------------------------------------
+Practice 1 :-
+
+?> Create a procedure called USER_QUERY_EMP that accepts three parameters. Parameter p_myeno is of IN 
+parameter mode which provides the empno value. The other two parameters p_myjob and p_mysal are of OUT mode.
+The procedure retrieves the salary and job of an employee with the provided employee number and assigns
+those to the two OUT parameters respectively. The procedure should handle the error if the empno 
+does not exist in the EMP table by displaying an appropriate message. Use bind variables for the two OUT 
+Parameters.
+
+?> Compile the code, invoke the procedure, and display the salary and job title for employee number 122.
+Do the same for employee number 206.
+
+>>>>ANS>>>>
+USE d10lab;
+DELIMITER //
+DROP PROCEDURE IF EXISTS USER_QUERY_EMP //
+CREATE PROCEDURE USER_QUERY_EMP(IN p_myeno INT ,OUT p_myjob VARCHAR(10) ,OUT p_mysal INT)
+BEGIN 
+SELECT job_id,salary INTO p_myjob,p_mysal FROM humanresource.employees WHERE employee_id = p_myeno;
+	IF p_myjob IS NULL THEN
+		SELECT 'employee_id does not exist' AS 'Error';
+    END IF;    
+END //
+DELIMITER ;
+
+mysql> CALL USER_QUERY_EMP(122,@job,@salary);
+Query OK, 1 row affected (0.00 sec)
+mysql> SELECT '122' AS p_myeno,@job AS p_myjob,@salary AS p_mysal;
++---------+---------+---------+
+| p_myeno | p_myjob | p_mysal |
++---------+---------+---------+
+| 122     | ST_MAN  |    7900 |
++---------+---------+---------+
+1 row in set (0.00 sec)
+mysql> CALL USER_QUERY_EMP(206,@job,@salary);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT '206' AS p_myeno,@job AS p_myjob,@salary AS p_mysal;
++---------+------------+---------+
+| p_myeno | p_myjob    | p_mysal |
++---------+------------+---------+
+| 206     | AC_ACCOUNT |    8300 |
++---------+------------+---------+
+1 row in set (0.00 sec)
+
+mysql> CALL USER_QUERY_EMP(78654,@job,@salary);
++----------------------------+
+| Error                      |
++----------------------------+
+| employee_id does not exist |
++----------------------------+
+1 row in set (0.00 sec)
+
+-------------------------------------------------------------------------------------------------------------
+Practice 2 :-
+
+?>	Create a function named USER_ANNUAL_COMP that has three parameters p_eno, p_sal and p_comm for passing
+on the values of an employee number, the current salary and commission of the employee respectively. 
+The function calculates and returns the annual compensation of the employee by using the following formula.
+    annual_compensation =  (p_sal+p_comm)*12
+If the salary or commission value is NULL then zero should be substituted for it. 
+
+?>	Give a call to USER_ANNUAL_COMP from a SELECT statement, against the EMP table.
+
+>>>>ANS>>>>
+USE d10lab;
+DELIMITER //
+DROP FUNCTION IF EXISTS USER_ANNUAL_COMP //
+CREATE FUNCTION USER_ANNUAL_COMP(p_eno INT, p_sal DECIMAL(8,2), p_comm DECIMAL(2,2))
+RETURNS INT
+DETERMINISTIC
+BEGIN 
+RETURN ( IFNULL(p_sal,0)+(IFNULL(p_comm,0)*p_sal) ) * 12 ;
+END //
+DELIMITER ;
+
+mysql> SELECT CONCAT(first_name,' ',last_name) AS FULLNAME,USER_ANNUAL_COMP(employee_id,salary,commission_pct)
+    -> AS 'ANNUAL COMPENSATION' FROM humanresource.employees;
++-------------------+---------------------+
+| FULLNAME          | ANNUAL COMPENSATION |
++-------------------+---------------------+
+| Steven King       |              288000 |
+| Neena Kochhar     |              204000 |
+| Lex De Haan       |              204000 |
+| Alexander Hunold  |              108000 |
+| Bruce Ernst       |               72000 |
+| David Austin      |               57600 |
+| Valli Pataballa   |               57600 |
+| Diana Lorentz     |               50400 |
+| Nancy Greenberg   |              144000 |
+| Daniel Faviet     |              108000 |
+| John Chen         |               98400 |
+| Ismael Sciarra    |               92400 |
+| Jose Manuel Urman |               93600 |
+| Luis Popp         |               82800 |
+| Den Raphaely      |              132000 |
+| Alexander Khoo    |               37200 |
+| Shelli Baida      |               34800 |
+| Sigal Tobias      |               33600 |
+| Guy Himuro        |               31200 |
+| Karen Colmenares  |               30000 |
+| Matthew Weiss     |               96000 |
+| Adam Fripp        |               98400 |
+| Payam Kaufling    |               94800 |
+| Shanta Vollman    |               78000 |
+| Kevin Mourgos     |               69600 |
+| Julia Nayer       |               38400 |
+| Irene Mikkilineni |               32400 |
+| James Landry      |               28800 |
+| Steven Markle     |               26400 |
+| Laura Bissot      |               39600 |
+| Mozhe Atkinson    |               33600 |
+| James Marlow      |               30000 |
+| TJ Olson          |               25200 |
+| Jason Mallin      |               39600 |
+| Michael Rogers    |               34800 |
+| Ki Gee            |               28800 |
+| Hazel Philtanker  |               26400 |
+| Renske Ladwig     |               43200 |
+| Stephen Stiles    |               38400 |
+| John Seo          |               32400 |
+| Joshua Patel      |               30000 |
+| Trenna Rajs       |               42000 |
+| Curtis Davies     |               37200 |
+| Randall Matos     |               31200 |
+| Peter Vargas      |               30000 |
+| John Russell      |              235200 |
+| Karen Partners    |              210600 |
+| Alberto Errazuriz |              187200 |
+| Gerald Cambrault  |              171600 |
+| Eleni Zlotkey     |              151200 |
+| Peter Tucker      |              156000 |
+| David Bernstein   |              142500 |
+| Peter Hall        |              135000 |
+| Christopher Olsen |              115200 |
+| Nanette Cambrault |              108000 |
+| Oliver Tuvault    |               96600 |
+| Janette King      |              162000 |
+| Patrick Sully     |              153900 |
+| Allan McEwen      |              145800 |
+| Lindsey Smith     |              124800 |
+| Louise Doran      |              117000 |
+| Sarath Sewall     |              105000 |
+| Clara Vishney     |              157500 |
+| Danielle Greene   |              131100 |
+| Mattea Marvins    |               95040 |
+| David Lee         |               89760 |
+| Sundar Ande       |               84480 |
+| Amit Banda        |               81840 |
+| Lisa Ozer         |              172500 |
+| Harrison Bloom    |              144000 |
+| Tayler Fox        |              138240 |
+| William Smith     |              102120 |
+| Elizabeth Bates   |              100740 |
+| Sundita Kumar     |               80520 |
+| Ellen Abel        |              171600 |
+| Alyssa Hutton     |              132000 |
+| Jonathon Taylor   |              123840 |
+| Jack Livingston   |              120960 |
+| Kimberely Grant   |               96600 |
+| Charles Johnson   |               81840 |
+| Winston Taylor    |               38400 |
+| Jean Fleaur       |               37200 |
+| Martha Sullivan   |               30000 |
+| Girard Geoni      |               33600 |
+| Nandita Sarchand  |               50400 |
+| Alexis Bull       |               49200 |
+| Julia Dellinger   |               40800 |
+| Anthony Cabrio    |               36000 |
+| Kelly Chung       |               45600 |
+| Jennifer Dilly    |               43200 |
+| Timothy Gates     |               34800 |
+| Randall Perkins   |               30000 |
+| Sarah Bell        |               48000 |
+| Britney Everett   |               46800 |
+| Samuel McCain     |               38400 |
+| Vance Jones       |               33600 |
+| Alana Walsh       |               37200 |
+| Kevin Feeney      |               36000 |
+| Donald OConnell   |               31200 |
+| Douglas Grant     |               31200 |
+| Jennifer Whalen   |               52800 |
+| Michael Hartstein |              156000 |
+| Pat Fay           |               72000 |
+| Susan Mavris      |               78000 |
+| Hermann Baer      |              120000 |
+| Shelley Higgins   |              144000 |
+| William Gietz     |               99600 |
++-------------------+---------------------+
+107 rows in set (0.00 sec)
+
+-------------------------------------------------------------------------------------------------------------
+Practice 3 :-
+
+?>	Create a function named USER_VALID_DEPTNO that has a single parameter p_dno to accept a department 
+number and returns a BOOLEAN value. The function returns TRUE if the department number exists in the 
+DEPT table else it returns FALSE.
+
+?>	Create a procedure named SHOW_STRENGTH that accepts department number in a single parameter p_deptno
+from user. The procedure gives a call to USER_VALID_DEPTNO. If the function returns TRUE then the procedure
+finds out how many employees are there in the department from the EMP table and displays the same on the 
+screen. If the function returns FALSE then the procedure displays an appropriate error message.
+
+?>	Give call to SHOW_STRENGTH by passing on department number 50. Do the same for department number 76
+
+>>>>ANS>>>>
+USE d10lab;
+DELIMITER //
+DROP FUNCTION IF EXISTS USER_VALID_DEPTNO //
+CREATE FUNCTION USER_VALID_DEPTNO(p_dno INT)
+RETURNS BOOLEAN
+DETERMINISTIC
+BEGIN 
+DECLARE DEPT_FOUND INT;
+SELECT department_id INTO DEPT_FOUND FROM humanresource.departments WHERE department_id = p_dno; 
+	IF DEPT_FOUND IS NOT NULL THEN
+		RETURN TRUE;
+    ELSE 
+		RETURN FALSE;
+    END IF;    
+END //
+DELIMITER ;
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+USE d10lab;
+DELIMITER //
+DROP FUNCTION IF EXISTS SHOW_STRENGTH //
+CREATE FUNCTION SHOW_STRENGTH(p_dno INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN 
+DECLARE DEPT_FOUND INT;
+DECLARE DEPT_STRENGTH INT;
+SELECT USER_VALID_DEPTNO(p_dno) INTO DEPT_FOUND; 
+	IF DEPT_FOUND = 1 THEN
+		SELECT COUNT(*) INTO DEPT_STRENGTH FROM humanresource.employees WHERE department_id = p_dno;
+		RETURN DEPT_STRENGTH ;
+    ELSE 
+		RETURN NULL;
+    END IF;    
+END //
+DELIMITER ;
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+mysql> SELECT '50' AS 'Department Id',IFNULL(d10lab.SHOW_STRENGTH(50),'No Such Department Exists')
+    -> AS 'Strength of Department';
++---------------+------------------------+
+| Department Id | Strength of Department |
++---------------+------------------------+
+| 50            | 45                     |
++---------------+------------------------+
+1 row in set (0.00 sec)
+mysql> SELECT '76' AS 'Department Id',IFNULL(d10lab.SHOW_STRENGTH(76),'No Such Department Exists')
+    -> AS 'Strength of Department';
++---------------+----------------------------+
+| Department Id | Strength of Department     |
++---------------+----------------------------+
+| 76            | No Such Department Exists |
++---------------+----------------------------+
+1 row in set (0.00 sec)
+
+-------------------------------------------------------------------------------------------------------------
+
+Practice 4 :-
+
+?>	Create a procedure named ADD_EMPLOYEE to hire an employee. Parameters to the procedure are job, mgr,
+hiredate, salary, commission and deptno. Validate the following:
+
+a. Employee number is not taken as a parameter but is auto generated by using a SEQUENCE. 
+b. Job is either ‘CLERK’ or ‘ANALYST’ or ‘SALESMAN’. The input value can be entered in any case (upper or lower or initcap).
+c. Mgr is an existing employee.
+d. Hiredate is less than system date.
+e. Salary must be greater than 800
+f. Commission is not null if the job is SALESMAN. For any other job, commission can be null.
+g. Deptno must exist in the DEPT table.
+
+Insert the record if the above validations are met and display a message ‘1 row inserted’.
+If the row is not inserted generate an exception and handle it by displaying an appropriate message. 
+
+?>	Give a call to ADD_EMPLOYEE through an anonymous PL/SQL block
+
+>>>>ANS>>>>
+USE d10lab;
+DELIMITER //
+DROP PROCEDURE IF EXISTS ADD_EMPLOYEE //
+CREATE PROCEDURE ADD_EMPLOYEE(job VARCHAR(10),mgr INT,hiredate DATE,salary DECIMAL(8,2),comm_prcnt DECIMAL(2,2),deptno INT)
+hiring : BEGIN 
+
+DECLARE valid_manager INT;
+DECLARE valid_profile VARCHAR(10);
+DECLARE valid_date DATE;
+DECLARE valid_salary DECIMAL(8,2);
+DECLARE valid_dept INT;
+
+SELECT employee_id INTO valid_manager FROM d10lab.valid_managers WHERE employee_id = mgr;
+SELECT IF(UPPER(job) IN ('CLERK','ANALYST','SALESMAN'),job,NULL) INTO valid_profile;
+SELECT IF(hiredate < CURDATE(),hiredate,NULL) INTO valid_date;
+SELECT IF(salary > 8000,salary,NULL) INTO valid_salary;
+SELECT department_id INTO valid_dept FROM d10lab.dept_with_vacancies WHERE department_id = deptno;
+
+	IF valid_profile IS NULL THEN 
+		SELECT 'INVALID JOB PROFILE' AS ERROR;
+        LEAVE hiring;
+    ELSEIF valid_manager IS NULL THEN
+		SELECT 'NO SUCH MANAGER_ID FOUND' AS ERROR;
+		LEAVE hiring;
+    ELSEIF valid_date IS NULL THEN
+		SELECT 'INVALID DATE OF HIRING' AS ERROR;
+		LEAVE hiring;
+    ELSEIF valid_salary IS NULL THEN
+		SELECT 'SALARY IS TOO LOW' AS ERROR;
+		LEAVE hiring;
+	ELSEIF valid_dept IS NULL THEN
+		SELECT 'NO SUCH DEPARTMENT EXISTS' AS ERROR;
+		LEAVE hiring;
+    ELSEIF comm_prcnt = 0 AND UPPER(valid_profile) = 'SALESMAN' THEN  
+		SELECT 'SALESMEN DO NOT WORK FOR ZERO COMMISSION' AS ERROR;
+		LEAVE hiring; 
+    END IF;    
+    
+    INSERT INTO d10lab.hired_employees VALUES (DEFAULT,valid_date,valid_profile,valid_salary,
+		comm_prcnt,valid_manager,valid_dept);
+    SELECT '1 row inserted' AS Success;  
+END hiring //
+DELIMITER ;
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+mysql> call d10lab.ADD_EMPLOYEE('aNalYst',108,'2012-12-06', 50000, 0.3, 50);
++----------------+
+| Success        |
++----------------+
+| 1 row inserted |
++----------------+
+1 row in set (0.01 sec)
+Query OK, 0 rows affected (0.01 sec)
+mysql> call d10lab.ADD_EMPLOYEE('adgst',108,'2012-12-06', 50000, 0.3, 50);
++---------------------+
+| ERROR               |
++---------------------+
+| INVALID JOB PROFILE |
++---------------------+
+1 row in set (0.00 sec)
+Query OK, 0 rows affected (0.00 sec)
+mysql> call d10lab.ADD_EMPLOYEE('CLERK',1008,'2012-12-06', 50000, 0.3, 50);
++--------------------------+
+| ERROR                    |
++--------------------------+
+| NO SUCH MANAGER_ID FOUND |
++--------------------------+
+1 row in set (0.00 sec)
+Query OK, 0 rows affected (0.00 sec)
+mysql> call d10lab.ADD_EMPLOYEE('CLERK',114,'2021-12-15', 50000, 0.3, 50);
++------------------------+
+| ERROR                  |
++------------------------+
+| INVALID DATE OF HIRING |
++------------------------+
+1 row in set (0.00 sec)
+Query OK, 0 rows affected (0.00 sec)
+mysql> call d10lab.ADD_EMPLOYEE('CLERK',121,'2008-02-15',5000, 0.0, 50);
++-------------------+
+| ERROR             |
++-------------------+
+| SALARY IS TOO LOW |
++-------------------+
+1 row in set (0.00 sec)
+Query OK, 0 rows affected (0.00 sec)
+mysql> call d10lab.ADD_EMPLOYEE('saLESMAN',205,'1998-02-15',75250, 0.0, 60);
++------------------------------------------+
+| ERROR                                    |
++------------------------------------------+
+| SALESMEN DO NOT WORK FOR ZERO COMMISSION |
++------------------------------------------+
+1 row in set (0.00 sec)
+Query OK, 0 rows affected (0.01 sec)
+mysql> call d10lab.ADD_EMPLOYEE('saLESMAN',205,'1998-02-15',75250, 0.5, 600);
++---------------------------+
+| ERROR                     |
++---------------------------+
+| NO SUCH DEPARTMENT EXISTS |
++---------------------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+mysql> call d10lab.ADD_EMPLOYEE('saLESMAN',205,'1998-02-15',75250, 0.5, 60);
++----------------+
+| Success        |
++----------------+
+| 1 row inserted |
++----------------+
+1 row in set (0.15 sec)
+Query OK, 0 rows affected (0.17 sec)
+mysql> SELECT * FROM d10lab.hired_employees;
++-------------+------------+----------+----------+----------------+------------+---------------+
+| employee_id | hire_date  | job_id   | salary   | commission_pct | manager_id | department_id |
++-------------+------------+----------+----------+----------------+------------+---------------+
+|           1 | 2012-12-06 | aNalYst  | 50000.00 |           0.30 |        108 |            50 |
+|           2 | 1998-02-15 | saLESMAN | 75250.00 |           0.50 |        205 |            60 |
++-------------+------------+----------+----------+----------------+------------+---------------+
+2 rows in set (0.00 sec)
+
+-------------------------------------------------------------------------------------------------------------
+Practice 5 :-
+
+?>	Create a function named FIND_SAL_GRADE which accepts salary of an employee finds the corresponding 
+salary grade from SALGRADE table and returns the grade. The function should raise an exception if the 
+salary value does not fit in any of the salary ranges specified in the salgrade table.
+?>	Create a procedure CALL_FIND_SAL_GRADE that does not accept any parameter. The procedure gives call
+to FIND_SAL_GRADE for each record in the emp table by passing on the salary value from the current record.
+The procedure displays the corresponding employee number, employee name and the salary grade returned by 
+FIND_SAL_GRADE, on the screen. The procedure should handle error thrown by the function by displaying an 
+appropriate message.
+
+?>	Give a call to CALL_FIND_SAL_GRADE through an anonymous PL/SQL block 
+
+>>>>ANS>>>>
+USE d10lab;
+DELIMITER //
+DROP FUNCTION IF EXISTS FIND_SAL_GRADE //
+CREATE FUNCTION FIND_SAL_GRADE(sal INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN 
+DECLARE salary_grade INT;
+SELECT grade INTO salary_grade FROM oracle_sample_db.salgrade WHERE sal BETWEEN losal AND hisal; 
+RETURN salary_grade;
+END //
+DELIMITER ;
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+USE d10lab;
+DELIMITER //
+DROP PROCEDURE IF EXISTS CALL_FIND_SAL_GRADE //
+CREATE PROCEDURE CALL_FIND_SAL_GRADE(sal INT)
+BEGIN 
+SELECT e.empno,e.ename,e.sal,FIND_SAL_GRADE(sal) AS 'Grade of Salary' FROM oracle_sample_db.emp e; 
+END //
+DELIMITER ;
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+mysql> CALL d10lab.CALL_FIND_SAL_GRADE();
++-------+--------+---------+-----------------+
+| empno | ename  | sal     | Grade of Salary |
++-------+--------+---------+-----------------+
+|  7369 | SMITH  |  800.00 |               1 |
+|  7499 | ALLEN  | 1600.00 |               3 |
+|  7521 | WARD   | 1250.00 |               2 |
+|  7566 | JONES  | 2975.00 |               4 |
+|  7654 | MARTIN | 1250.00 |               2 |
+|  7698 | BLAKE  | 2850.00 |               4 |
+|  7782 | CLARK  | 2450.00 |               4 |
+|  7788 | SCOTT  | 3000.00 |               4 |
+|  7839 | KING   | 5000.00 |               5 |
+|  7844 | TURNER | 1500.00 |               3 |
+|  7876 | ADAMS  | 1100.00 |               1 |
+|  7900 | JAMES  |  950.00 |               1 |
+|  7902 | FORD   | 3000.00 |               4 |
+|  7934 | MILLER | 1300.00 |               2 |
++-------+--------+---------+-----------------+
+14 rows in set (0.01 sec)
+
+Query OK, 0 rows affected (0.05 sec)
+
+-------------------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------------------
+										**** TRIGGERS ****
+-------------------------------------------------------------------------------------------------------------
+Practice 1 :-
+
+?>	Implement the following business rule with the help of a trigger named TR_CHECK_DEPT and a procedure 
+named SECURE_DML. Changes to data in the dept table, will be allowed only in the month of March.
+
+?>	Create a procedure called SECURE_DML that prevents the DML statement from executing in any other 
+month than March.  In case, a user tries to modify the table in any other month, the procedure should 
+display a message “You can modify or add a department only at the end of a financial year”
+
+?>	Create a statement level trigger TR_CHECK_DEPT on the dept table that calls the above procedure.
+
+?>	Test it by inserting a new record in the dept table.
+ 
+>>>ANS>>>
+
+USE oracle_sample_db;
+DELIMITER //
+DROP TRIGGER IF EXISTS TR_CHECK_DEPT_bf_insert //
+CREATE TRIGGER TR_CHECK_DEPT_bf_insert
+BEFORE INSERT ON oracle_sample_db.dept 
+FOR EACH ROW
+BEGIN 
+IF MONTH(NOW()) <> 3 THEN
+	CALL d10lab.SECURE_DML();
+END IF;    
+END //
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+DROP TRIGGER IF EXISTS TR_CHECK_DEPT_bf_update //
+CREATE TRIGGER TR_CHECK_DEPT_bf_update
+BEFORE UPDATE ON oracle_sample_db.dept
+FOR EACH ROW
+BEGIN 
+IF MONTH(NOW()) <> 3 THEN
+	CALL d10lab.SECURE_DML();
+END IF; 
+END //
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+DROP TRIGGER IF EXISTS TR_CHECK_DEPT_bf_delete //
+CREATE TRIGGER TR_CHECK_DEPT_bf_delete
+BEFORE DELETE ON oracle_sample_db.dept
+FOR EACH ROW
+BEGIN 
+IF MONTH(NOW()) <> 3 THEN
+	CALL d10lab.SECURE_DML();
+END IF; 
+END //
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+DROP PROCEDURE IF EXISTS d10lab.SECURE_DML//
+CREATE PROCEDURE d10lab.SECURE_DML()
+BEGIN 
+SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'You can modify or add a department only at the end of a financial year';
+END //
+DELIMITER ;
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+mysql> USE oracle_sample_db;
+Database changed
+mysql> SELECT * FROM oracle_sample_db.dept;
++--------+------------+----------+
+| deptno | dname      | loc      |
++--------+------------+----------+
+|     10 | ACCOUNTING | NEW YORK |
+|     20 | RESEARCH   | DALLAS   |
+|     30 | SALES      | CHICAGO  |
+|     40 | OPERATIONS | BOSTON   |
++--------+------------+----------+
+4 rows in set (0.00 sec)
+
+mysql> INSERT INTO oracle_sample_db.dept VALUES (999,'RnD','INDIA');
+ERROR 1644 (45000): You can modify or add a department only at the end of a financial year
+
+mysql> UPDATE oracle_sample_db.dept SET loc ='US' WHERE deptno = 40;
+ERROR 1644 (45000): You can modify or add a department only at the end of a financial year
+
+mysql> DELETE FROM oracle_sample_db.dept WHERE dname='sales';
+ERROR 1644 (45000): You can modify or add a department only at the end of a financial year
+
+-------------------------------------------------------------------------------------------------------------
+Practice 2 :-
+
+?>	Enforce referential integrity with a trigger named TR_CASCADE_CHANGE. When the value of DEPTNO changes in
+the Dept table, cascade the update to the corresponding rows in the EMP table.
+ 
+?>	Test it by updating the value of a deptno from the dept table.
+  
+-------------------------------------------------------------------------------------------------------------
+Practice 3 :-
+
+?>	Create a trigger named TR_CHECK_COMM to implement the following business rule. In EMP table, employee
+having job as ‘Salesman’ should receive a commission. A Salesman must receive a commission of not less than 
+Rs. 100. Employees who are not sales persons are not entitled to get commission (comm value should be NULL).
+
+?>	Test it by inserting a record in the emp table.
+-------------------------------------------------------------------------------------------------------------
+Practice 4 :-
+
+?>	While modifying the EMP table, ensure that the salary is in the valid range as specified in the SALGRADE
+table (between lowest  losal and highest  hisal) with the help of a trigger named TR_VALIDATE_SAL.
+
+?>	Test it by updating the salary value of an existing record in the emp table.
+-------------------------------------------------------------------------------------------------------------
+Practice 5 :-
+
+?>	Create a table named salaryLog with the appropriate columns and insert  the empno, new grade, old salary
+and new salary values in salaryLog table if the grade of an employee changes. 
+ 
+?>	Create a trigger named TR_CHECK_GRADE that will be fired when a user modifies the EMP table. It will 
+check whether the grade has changed by making use of the SALGRADE table. (Grade is dependent on Salary.) 
+If grade is changed, the trigger will log the corresponding employee number, old salary, new salary and 
+new grade into  salary Log table. 
+
+?>	Test the working of the trigger by firing an appropriate DML query.
+-------------------------------------------------------------------------------------------------------------

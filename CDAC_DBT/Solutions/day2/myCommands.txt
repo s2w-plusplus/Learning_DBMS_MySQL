@@ -1,0 +1,188 @@
+---
+CREATE TABLE STUDENT
+(
+PRN BIGINT,
+NAME VARCHAR(20),
+AGE TINYINT,
+MARKS FLOAT(4,2),
+COURSE CHAR(5)
+);
+
+Query OK, 0 rows affected, 1 warning (0.38 sec)
+
+DESCRIBE STUDENT;
++--------+-------------+------+-----+---------+-------+
+                                                                     
++--------+-------------+------+-----+---------+-------+
+| PRN    | bigint      | YES  |     | NULL    |       |
+| NAME   | varchar(20) | YES  |     | NULL    |       |
+| AGE    | tinyint     | YES  |     | NULL    |       |
+| MARKS  | float(4,2)  | YES  |     | NULL    |       |
+| COURSE | char(5)     | YES  |     | NULL    |       |
++--------+-------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+ALTER TABLE STUDENT ADD PRIMARY KEY(PRN);
+Query OK, 0 rows affected (0.24 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> DESCRIBE STUDENT;
++--------+-------------+------+-----+---------+-------+
+| Field  | Type        | Null | Key | Default | Extra |
++--------+-------------+------+-----+---------+-------+
+| PRN    | bigint      | NO   | PRI | NULL    |       |
+| NAME   | varchar(20) | YES  |     | NULL    |       |
+| AGE    | tinyint     | YES  |     | NULL    |       |
+| MARKS  | float(4,2)  | YES  |     | NULL    |       |
+| COURSE | char(5)     | YES  |     | NULL    |       |
++--------+-------------+------+-----+---------+-------+
+5 rows in set (0.01 sec)
+
+
+mysql> INSERT INTO STUDENT VALUES(210540181231,'SAURABH WANI',26,67.89,'e-DAC');
+Query OK, 1 row affected (0.31 sec)
+
+mysql> SELECT * FROM STUDENT;
++--------------+--------------+------+-------+--------+
+| PRN          | NAME         | AGE  | MARKS | COURSE |
++--------------+--------------+------+-------+--------+
+| 210540181231 | SAURABH WANI |   26 | 67.89 | e-DAC  |
++--------------+--------------+------+-------+--------+
+1 row in set (0.02 sec)
+
+mysql> INSERT INTO STUDENT VALUES(210540181245,'SHUBHAM WANI',23,71.89,'e-DMC');
+Query OK, 1 row affected (0.31 sec)
+
+mysql> SELECT * FROM STUDENT;
++--------------+--------------+------+-------+--------+
+| PRN          | NAME         | AGE  | MARKS | COURSE |
++--------------+--------------+------+-------+--------+
+| 210540181231 | SAURABH WANI |   26 | 67.89 | e-DAC  |
+| 210540181245 | SHUBHAM WANI |   23 | 71.89 | e-DMC  |
++--------------+--------------+------+-------+--------+
+2 rows in set (0.00 sec)
+
+ALTER TABLE STUDENT
+ADD DOB DATE;
+
+mysql> ALTER TABLE STUDENT
+    -> ADD UNIQUE (DOB);
+Query OK, 0 rows affected (0.18 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> DESCRIBE STUDENT;
++--------+-------------+------+-----+---------+-------+
+| Field  | Type        | Null | Key | Default | Extra |
++--------+-------------+------+-----+---------+-------+
+| PRN    | bigint      | NO   | PRI | NULL    |       |
+| NAME   | varchar(20) | YES  |     | NULL    |       |
+| AGE    | tinyint     | YES  |     | NULL    |       |
+| MARKS  | float(4,2)  | YES  |     | NULL    |       |
+| COURSE | char(5)     | YES  |     | NULL    |       |
+| DOB    | date        | YES  | UNI | NULL    |       |
++--------+-------------+------+-----+---------+-------+
+6 rows in set (0.01 sec)
+
+mysql> UPDATE STUDENT
+    -> SET DOB='1994-08-04'
+    -> WHERE PRN= 210540181231;
+Query OK, 1 row affected (0.03 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM STUDENT;
++--------------+--------------+------+-------+--------+------------+
+| PRN          | NAME         | AGE  | MARKS | COURSE | DOB        |
++--------------+--------------+------+-------+--------+------------+
+| 210540181231 | SAURABH WANI |   26 | 67.89 | e-DAC  | 1994-08-04 |
+| 210540181245 | SHUBHAM WANI |   23 | 71.89 | e-DMC  | NULL       |
++--------------+--------------+------+-------+--------+------------+
+2 rows in set (0.00 sec)
+
+mysql> UPDATE STUDENT
+    -> SET DOB='1998-03-26'
+    -> WHERE PRN= 210540181245;
+Query OK, 1 row affected (0.10 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM STUDENT;
++--------------+--------------+------+-------+--------+------------+
+| PRN          | NAME         | AGE  | MARKS | COURSE | DOB        |
++--------------+--------------+------+-------+--------+------------+
+| 210540181231 | SAURABH WANI |   26 | 67.89 | e-DAC  | 1994-08-04 |
+| 210540181245 | SHUBHAM WANI |   23 | 71.89 | e-DMC  | 1998-03-26 |
++--------------+--------------+------+-------+--------+------------+
+2 rows in set (0.00 sec)
+
+
+mysql> ALTER TABLE STUDENT
+    -> MODIFY MARKS FLOAT NOT NULL;
+Query OK, 0 rows affected (0.14 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> DESCRIBE STUDENT;
++--------+-------------+------+-----+---------+-------+
+| Field  | Type        | Null | Key | Default | Extra |
++--------+-------------+------+-----+---------+-------+
+| PRN    | bigint      | NO   | PRI | NULL    |       |
+| NAME   | varchar(20) | YES  |     | NULL    |       |
+| AGE    | tinyint     | YES  |     | NULL    |       |
+| MARKS  | float       | NO   |     | NULL    |       |
+| COURSE | char(5)     | YES  |     | NULL    |       |
+| DOB    | date        | YES  | UNI | NULL    |       |
++--------+-------------+------+-----+---------+-------+
+6 rows in set (0.01 sec)
+
+mysql> CREATE TABLE ConsolidatePrimary
+    ->     (
+    ->     ID VARCHAR(10),
+    ->     NAME VARCHAR(20),
+    ->     CONTACT BIGINT,
+    ->     CITY VARCHAR(10),
+    ->     PRIMARY KEY (ID,NAME,CONTACT)
+    ->     );
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> show tables;
++--------------------+
+| Tables_in_firstsql |
++--------------------+
+| consolidateprimary |
+| student            |
++--------------------+
+2 rows in set (0.02 sec)
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+Trying to import csv...
+Creating matching table in my database first.....
+
+create table sampleData
+(
+Region 	VARCHAR(5),
+City	VARCHAR(15),
+Category VARCHAR(10),
+Product VARCHAR(20),
+Quantity SMALLINT,
+UnitPrice TINYINT,
+TotalPrice SMALLINT
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,121 @@
+==========================================================================================================================
+==========================================================================================================================
+Insert Documents in emp collection
+> db.emp.insert([
+{eno:1,ename:'Sachin',sal:6000,desig:'manager',dept:'Purchase'},
+{eno:2,ename:'Dhoni',sal:5000,desig:'manager',dept:'Sales'},
+{eno:3,ename:'Kohli',sal:3000,desig:'clerk',dept:'Admin'},
+{eno:4,ename:'Dravid',sal:4000,desig:'manager',dept:'Purchase'},
+{eno:5,ename:'Bumrah',sal:3500,desig:'manager',dept:'Sales'},
+{eno:6,ename:'Jadeja',sal:2500,desig:'clerk',dept:'Admin'},
+{eno:7,ename:'Rohit',sal:4000,desig:'manager',dept:'Sales'}])
+==========================================================================================================================
+
+1) List all emplyees name with their salary who are in admin department.
+> db.emp.find({dept:'Admin'},{_id:0,ename:1,sal:1})
+{ "ename" : "Kohli", "sal" : 3000 }
+{ "ename" : "Jadeja", "sal" : 2500 }
+
+----------------------------------------------------------------------------------------------------
+
+2) List all emplyees name with their salary and designation who are in Purchase department.
+> db.emp.find({dept:'Purchase'},{_id:0,ename:1,sal:1,desig:1})
+{ "ename" : "Sachin", "sal" : 6000, "desig" : "manager" }
+{ "ename" : "Dravid", "sal" : 4000, "desig" : "manager" }
+
+----------------------------------------------------------------------------------------------------
+
+3) List all employees no, name, salary who are in the Sales department and Designation is Manager.
+> db.emp.find({dept:'Sales',desig:'manager'},{_id:0,eno:1,ename:1,sal:1})
+{ "eno" : 2, "ename" : "Dhoni", "sal" : 5000 }
+{ "eno" : 5, "ename" : "Bumrah", "sal" : 3500 }
+{ "eno" : 7, "ename" : "Rohit", "sal" : 4000 }
+----------------------------------------------------------------------------------------------------
+
+4) calculate Annual salary of each emplyees
+> db.emp.aggregate([{$project:{ename:1,salary:1,_id:0,annual_sal:{$multiply:["$sal",12]}}}]);
+{ "ename" : "Sachin", "annual_sal" : 72000 }
+{ "ename" : "Dhoni", "annual_sal" : 60000 }
+{ "ename" : "Kohli", "annual_sal" : 36000 }
+{ "ename" : "Dravid", "annual_sall" : 48000 }
+{ "ename" : "Bumrah", "annual_sal" : 42000 }
+{ "ename" : "Jadeja", "annual_sal" : 30000 }
+{ "ename" : "Rohit", "annual_sal" : 48000 }
+
+----------------------------------------------------------------------------------------------------
+
+5) Convert the names of the emplyees in Lower case and display only no and name of each emplyees.
+> db.emp.aggregate([{$project:{eno:1,_id:0,ename:{$toLower:['$ename']}}}])
+{ "eno" : 1, "ename" : "sachin" }
+{ "eno" : 2, "ename" : "dhoni" }
+{ "eno" : 3, "ename" : "kohli" }
+{ "eno" : 4, "ename" : "dravid" }
+{ "eno" : 5, "ename" : "bumrah" }
+{ "eno" : 6, "ename" : "jadeja" }
+{ "eno" : 7, "ename" : "rohit" }
+
+----------------------------------------------------------------------------------------------------
+6) Display each document of the collection emplyee the total salary of each emplyee should be displayed department wise.
+	$concat
+> db.emp.aggregate([{$group:{_id:'$dept',total_sal:{$sum:'$sal'}}}])
+{ "_id" : "Sales", "total_sal" : 12500 }
+{ "_id" : "Admin", "total_sal" : 5500 }
+{ "_id" : "Purchase", "total_sal" : 10000 }
+
+----------------------------------------------------------------------------------------------------
+
+7) Findout Total Salary manager designation wise.
+> db.emp.aggregate([{$group:{_id:'$desig',total_sal:{$sum:'$sal'}}}])
+{ "_id" : "manager", "total_sal" : 22500 }
+{ "_id" : "clerk", "total_sal" : 5500 }
+> db.emp.aggregate([{$group:{_id:'$desig',total_sal:{$sum:'$sal'}}},{$match:{_id:'manager'}}])
+{ "_id" : "manager", "total_sal" : 22500 }
+
+----------------------------------------------------------------------------------------------------
+
+8) Find The Average Salary of each department in emp collection.
+> db.emp.aggregate([{$group:{_id:'$dept',Avg_dept_sal:{$avg:'$sal'}}}])
+{ "_id" : "Purchase", "Avg_dept_sal" : 5000 }
+{ "_id" : "Sales", "Avg_dept_sal" : 4166.666666666667 }
+{ "_id" : "Admin", "Avg_dept_sal" : 2750 }
+
+----------------------------------------------------------------------------------------------------
+
+9) Find The MAX Salary of each department in emp collection.
+> db.emp.aggregate([{$group:{_id:'$dept',Max_dept_sal:{$max:'$sal'}}}])
+{ "_id" : "Purchase", "Max_dept_sal" : 6000 }
+{ "_id" : "Sales", "Max_dept_sal" : 5000 }
+{ "_id" : "Admin", "Max_dept_sal" : 3000 }
+
+----------------------------------------------------------------------------------------------------
+
+10)update The Document with null value in desig field where name is kohli.
+
+----------------------------------------------------------------------------------------------------
+
+11) To remove design Field having Null Values in emp Collection.
+
+----------------------------------------------------------------------------------------------------
+
+==========================================================================================================================
+==========================================================================================================================
+
+>db.foods.insert([
+{_id:1,fruits:['banana','apple','cherry']},
+{_id:2,fruits:['orange','watermelon','mango']},
+{_id:3,fruits:['pinaple','strawberry','grapes']},
+{_id:4,fruits:['banana','strawberry','grapes']},
+{_id:5,fruits:['orange','grapes']}
+])
+==========================================================================================================================
+
+1) display those documents from in food collection which has fruits array consituted of banana,apple,cherry 
+> db.foods.find({fruits:['banana','apple','cherry']})
+{ "_id" : 1, "fruits" : [ "banana", "apple", "cherry" ] }
+----------------------------------------------------------------------------------------------------
+
+2) display those documents From food Collection which has fruits array having a banana as an element.
+ db.foods.find({fruits:{$in:['banana']}})
+{ "_id" : 1, "fruits" : [ "banana", "apple", "cherry" ] }
+{ "_id" : 4, "fruits" : [ "banana", "strawberry", "grapes" ] }
+----------------------------------------------------------------------------------------------------

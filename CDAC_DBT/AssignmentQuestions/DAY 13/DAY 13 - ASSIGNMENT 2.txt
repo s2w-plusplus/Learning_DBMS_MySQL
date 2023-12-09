@@ -1,0 +1,47 @@
+Q1) CREATE A TABLE WITH DUPLICATE RECORDS AND WRITE A QUERY TO REMOVE DUPLICATE RECORDS.
+
+Q2) What is Query to display Nth Record from Employee table?
+
+Q3) How to get 3 Highest salaries records from Employee table?
+
+Q4) What is the Query to fetch last record from the table?
+
+Q5) How to Display Odd rows in Employee table?
+
+Q6) How to fetch 3rd highest salary using Rank Function?
+
+Q7) Display first 50% records from Employee table?
+
+Q8) How Can i create table with same structure with data
+of Employee table?
+
+Q9) How do i fetch only common records between 2 tables.
+
+Q10) How to get distinct records from the table without using distinct keyword.
+
+Q11) How to display following using query?
+	*
+   * *
+  * * *
+  
+Q12) How to add the email validation using only one query?
+
+Q13) How to find count of duplicate rows?
+
+Q14) Write an SQL query to find the count of the total occurrences of a particular character – ‘n’ in the FullName field.
+
+Q15) Write an SQL query to fetch only even rows from the table.
+
+Q16) Write a query to display all the information for those employees whose id is any id who earn the second highest salary.
+
+Q17) Write a query to display the employee ID and name ( first name and last name ) of all employees who works in such a department where the employees are working whose name containing a letter 'T'
+
+Q18)Write a query to display the employee number, name( first name and last name ) and job title for all employees whose salary is more than any salary of those employees whose job title is PU_MAN. Exclude job title PU_MAN.
+
+Q19) Write a PL/SQL code to count the number of Sundays between the two inputted dates.
+
+Q20) Write a PL/SQL code to find whether a given string is palindrome or not.
+
+Q21) Write PL/SQL program to find the sum of digits of a number.
+
+Q22) Write a PL/SQL program using WHILE loop for calculating the average of the numbers entered by user. Stop the entry of numbers whenever the user enters the number 0.

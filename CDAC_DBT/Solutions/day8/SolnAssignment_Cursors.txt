@@ -1,0 +1,248 @@
+Cursors
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+1. Prepare a program to display the comma separated list of employee names in following format
+
+   Deptno    Employees
+   -------   ------------
+   10        Scott, Smith, Jones
+   20        Allen, Ford
+   30 
+ 
+>>>SOLUTION
+
+USE d08lab;
+DELIMITER // 
+DROP PROCEDURE IF EXISTS assgn_cursor_Q1 //
+CREATE PROCEDURE assgn_cursor_Q1()
+BEGIN 
+	DECLARE DEPT_ID INT;
+    DECLARE EMP_IN_DEPT INT;
+    DECLARE NO_OF_DEPT INT;
+    DECLARE FULLNAME VARCHAR(20);
+	DECLARE dept_cur CURSOR FOR 
+			SELECT DISTINCT department_id FROM humanresource.employees WHERE department_id IS NOT NULL;
+    DECLARE emp_dept_cur CURSOR FOR 
+			SELECT concat(first_name,' ',last_name) FROM humanresource.employees where department_id= DEPT_ID;
+	CREATE TEMPORARY TABLE IF NOT EXISTS EMPLIST_BY_DEPT(
+		DEPT INT,
+        EMPLOYEES_IN_DEPT VARCHAR(10000)
+	);
+    
+	SELECT COUNT(DISTINCT department_id) INTO NO_OF_DEPT FROM humanresource.employees;	
+	OPEN dept_cur;
+	LOOP1 : WHILE NO_OF_DEPT > 0 DO
+		FETCH dept_cur INTO DEPT_ID;
+		OPEN emp_dept_cur; 
+        SELECT COUNT(*) INTO EMP_IN_DEPT FROM humanresource.employees WHERE department_id= DEPT_ID;	
+        INSERT INTO EMPLIST_BY_DEPT VALUES(DEPT_ID,'');
+		LOOP2 : WHILE EMP_IN_DEPT > 0 DO
+            FETCH emp_dept_cur INTO FULLNAME;
+            UPDATE EMPLIST_BY_DEPT SET EMPLOYEES_IN_DEPT=CONCAT(EMPLOYEES_IN_DEPT,FULLNAME,', ') WHERE DEPT = DEPT_ID;
+			SET EMP_IN_DEPT = EMP_IN_DEPT - 1; 
+		END WHILE LOOP2;  
+		CLOSE emp_dept_cur;
+        SET NO_OF_DEPT = NO_OF_DEPT - 1; 
+	END WHILE LOOP1;
+	CLOSE dept_cur;
+	SELECT * FROM  EMPLIST_BY_DEPT;
+	DROP TABLE EMPLIST_BY_DEPT;
+	END //
+	DELIMITER ;
+	
+	mysql> call d08lab.assgn_cursor_Q1();
++------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| DEPT | EMPLOYEES_IN_DEPT                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
++------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|   10 | Jennifer Whalen,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+|   20 | Michael Hartstein, Pat Fay,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+|   30 | Den Raphaely, Alexander Khoo, Shelli Baida, Sigal Tobias, Guy Himuro, Karen Colmenares,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+|   40 | Susan Mavris,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|   50 | Matthew Weiss, Adam Fripp, Payam Kaufling, Shanta Vollman, Kevin Mourgos, Julia Nayer, Irene Mikkilineni, James Landry, Steven Markle, Laura Bissot, Mozhe Atkinson, James Marlow, TJ Olson, Jason Mallin, Michael Rogers, Ki Gee, Hazel Philtanker, Renske Ladwig, Stephen Stiles, John Seo, Joshua Patel, Trenna Rajs, Curtis Davies, Randall Matos, Peter Vargas, Winston Taylor, Jean Fleaur, Martha Sullivan, Girard Geoni, Nandita Sarchand, Alexis Bull, Julia Dellinger, Anthony Cabrio, Kelly Chung, Jennifer Dilly, Timothy Gates, Randall Perkins, Sarah Bell, Britney Everett, Samuel McCain, Vance Jones, Alana Walsh, Kevin Feeney, Donald OConnell, Douglas Grant,  |
+|   60 | Alexander Hunold, Bruce Ernst, David Austin, Valli Pataballa, Diana Lorentz,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+|   70 | Hermann Baer,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|   80 | John Russell, Karen Partners, Alberto Errazuriz, Gerald Cambrault, Eleni Zlotkey, Peter Tucker, David Bernstein, Peter Hall, Christopher Olsen, Nanette Cambrault, Oliver Tuvault, Janette King, Patrick Sully, Allan McEwen, Lindsey Smith, Louise Doran, Sarath Sewall, Clara Vishney, Danielle Greene, Mattea Marvins, David Lee, Sundar Ande, Amit Banda, Lisa Ozer, Harrison Bloom, Tayler Fox, William Smith, Elizabeth Bates, Sundita Kumar, Ellen Abel, Alyssa Hutton, Jonathon Taylor, Jack Livingston, Charles Johnson,                                                                                                                                                  |
+|   90 | Steven King, Neena Kochhar, Lex De Haan,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+|  100 | Nancy Greenberg, Daniel Faviet, John Chen, Ismael Sciarra, Jose Manuel Urman, Luis Popp,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+|  110 | Shelley Higgins, William Gietz,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
++------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+11 rows in set (0.12 sec)
+
+Query OK, 0 rows affected (0.64 sec)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2. Prepare a program to show the details in following format
+
+    Deptno   Dname      Employees
+	-------  -------    -------------
+	10        SALES     Scott, Smith, Jones
+
+>>>SOLUTION
+
+USE d08lab;
+DELIMITER // 
+DROP PROCEDURE IF EXISTS assgn_cursor_Q2 //
+CREATE PROCEDURE assgn_cursor_Q2()
+BEGIN 
+	DECLARE DEPT_ID INT;
+    DECLARE EMP_IN_DEPT INT;
+    DECLARE NO_OF_DEPT INT;
+    DECLARE FULLNAME VARCHAR(20);
+    DECLARE DEPT_NAME VARCHAR(30);
+	DECLARE dept_cur CURSOR FOR 
+			SELECT DISTINCT department_id FROM humanresource.employees WHERE department_id IS NOT NULL;
+    DECLARE emp_dept_cur CURSOR FOR 
+			SELECT concat(first_name,' ',last_name) FROM humanresource.employees where department_id= DEPT_ID;
+	CREATE TEMPORARY TABLE IF NOT EXISTS EMPLIST_BY_DEPT(
+		DEPT INT,
+        NAME_OF_DEPARTMENT VARCHAR(30),
+        EMPLOYEES_IN_DEPT VARCHAR(10000)
+	);
+    
+	SELECT COUNT(DISTINCT department_id) INTO NO_OF_DEPT FROM humanresource.employees;	
+	OPEN dept_cur;
+	LOOP1 : WHILE NO_OF_DEPT > 0 DO
+		FETCH dept_cur INTO DEPT_ID;
+		SELECT department_name INTO DEPT_NAME FROM humanresource.departments WHERE department_id= DEPT_ID;
+        SELECT COUNT(*) INTO EMP_IN_DEPT FROM humanresource.employees WHERE department_id= DEPT_ID;	
+        INSERT INTO EMPLIST_BY_DEPT VALUES(DEPT_ID,DEPT_NAME,'');
+        OPEN emp_dept_cur; 
+		LOOP2 : WHILE EMP_IN_DEPT > 0 DO
+            FETCH emp_dept_cur INTO FULLNAME;
+            UPDATE EMPLIST_BY_DEPT SET EMPLOYEES_IN_DEPT=CONCAT(EMPLOYEES_IN_DEPT,FULLNAME,', ') WHERE DEPT = DEPT_ID;
+			SET EMP_IN_DEPT = EMP_IN_DEPT - 1; 
+		END WHILE LOOP2;  
+		CLOSE emp_dept_cur;
+        SET NO_OF_DEPT = NO_OF_DEPT - 1; 
+	END WHILE LOOP1;
+	CLOSE dept_cur;
+	SELECT * FROM  EMPLIST_BY_DEPT;
+	DROP TABLE EMPLIST_BY_DEPT;
+	END //
+	DELIMITER ;
+	
+	
+	mysql> call d08lab.assgn_cursor_Q2();
++------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| DEPT | NAME_OF_DEPARTMENT | EMPLOYEES_IN_DEPT                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
++------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|   10 | Administration     | Jennifer Whalen,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+|   20 | Marketing          | Michael Hartstein, Pat Fay,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+|   30 | Purchasing         | Den Raphaely, Alexander Khoo, Shelli Baida, Sigal Tobias, Guy Himuro, Karen Colmenares,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+|   40 | Human Resources    | Susan Mavris,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|   50 | Shipping           | Matthew Weiss, Adam Fripp, Payam Kaufling, Shanta Vollman, Kevin Mourgos, Julia Nayer, Irene Mikkilineni, James Landry, Steven Markle, Laura Bissot, Mozhe Atkinson, James Marlow, TJ Olson, Jason Mallin, Michael Rogers, Ki Gee, Hazel Philtanker, Renske Ladwig, Stephen Stiles, John Seo, Joshua Patel, Trenna Rajs, Curtis Davies, Randall Matos, Peter Vargas, Winston Taylor, Jean Fleaur, Martha Sullivan, Girard Geoni, Nandita Sarchand, Alexis Bull, Julia Dellinger, Anthony Cabrio, Kelly Chung, Jennifer Dilly, Timothy Gates, Randall Perkins, Sarah Bell, Britney Everett, Samuel McCain, Vance Jones, Alana Walsh, Kevin Feeney, Donald OConnell, Douglas Grant,  |
+|   60 | IT                 | Alexander Hunold, Bruce Ernst, David Austin, Valli Pataballa, Diana Lorentz,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+|   70 | Public Relations   | Hermann Baer,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|   80 | Sales              | John Russell, Karen Partners, Alberto Errazuriz, Gerald Cambrault, Eleni Zlotkey, Peter Tucker, David Bernstein, Peter Hall, Christopher Olsen, Nanette Cambrault, Oliver Tuvault, Janette King, Patrick Sully, Allan McEwen, Lindsey Smith, Louise Doran, Sarath Sewall, Clara Vishney, Danielle Greene, Mattea Marvins, David Lee, Sundar Ande, Amit Banda, Lisa Ozer, Harrison Bloom, Tayler Fox, William Smith, Elizabeth Bates, Sundita Kumar, Ellen Abel, Alyssa Hutton, Jonathon Taylor, Jack Livingston, Charles Johnson,                                                                                                                                                  |
+|   90 | Executive          | Steven King, Neena Kochhar, Lex De Haan,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+|  100 | Finance            | Nancy Greenberg, Daniel Faviet, John Chen, Ismael Sciarra, Jose Manuel Urman, Luis Popp,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+|  110 | Accounting         | Shelley Higgins, William Gietz,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
++------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+11 rows in set (0.04 sec)
+
+Query OK, 0 rows affected (0.55 sec)
+	
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+	
+3. For performance testing we are trying to increase number of records by 10 times for each department. For eg: If there are 3 employees in dept 10 then we should be able to increase the employee count to 30 using same / random values 
+
+eg:
++-------+--------+-----------+------+------------+------+------+--------+
+| EMPNO | ENAME  | JOB       | MGR  | HIREDATE   | SAL  | COMM | DEPTNO |
++-------+--------+-----------+------+------------+------+------+--------+
+|  7782 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450 | NULL |     10 |
+|  7839 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000 | NULL |     10 |
+|  7934 | MILLER | CLERK     | 7782 | 1982-01-23 | 1300 | NULL |     10 |
+
+should become
+
++-------+--------+-----------+------+------------+------+------+--------+
+| EMPNO | ENAME  | JOB       | MGR  | HIREDATE   | SAL  | COMM | DEPTNO |
++-------+--------+-----------+------+------------+------+------+--------+
+|  7782 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450 | NULL |     10 |
+|  7783 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450 | NULL |     10 |
+|  7784 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450 | NULL |     10 |
+|  7785 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450 | NULL |     10 |
+|  7786 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450 | NULL |     10 |
+|  7787 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450 | NULL |     10 |
+...........
+|  7839 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000 | NULL |     10 |
+|  7840 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000 | NULL |     10 |
+|  7841 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000 | NULL |     10 |
+|  7842 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000 | NULL |     10 |
+|  7843 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000 | NULL |     10 |
+|  7844 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000 | NULL |     10 |
+...........
+|  7934 | MILLER | CLERK     | 7782 | 1982-01-23 | 1300 | NULL |     10 |
+	
+	
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
+4. Prepare a program to create clone of all tables in given schema
+
+>>>Soln
+
+USE d08lab;
+DELIMITER // 
+DROP PROCEDURE IF EXISTS assgn_cursor_Q4 //
+CREATE PROCEDURE assgn_cursor_Q4(database_name varchar(30))
+BEGIN 
+	DECLARE TABLENAME VARCHAR(50);
+    DECLARE STATEMENT0 VARCHAR(100);
+    DECLARE STATEMENT1 VARCHAR(100);
+    DECLARE STATEMENT2 VARCHAR(100);
+    DECLARE EXIT_LOOP BOOLEAN DEFAULT FALSE;
+   
+	DECLARE table_cur CURSOR FOR 
+			SELECT DISTINCT TABLE_NAME FROM information_schema.tables 
+            WHERE table_schema = database_name AND table_type = 'BASE TABLE';
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET EXIT_LOOP = TRUE;
+    
+    
+    OPEN table_cur;
+    loop_label : LOOP
+        FETCH table_cur INTO TABLENAME;
+        IF EXIT_LOOP IS TRUE THEN
+			LEAVE loop_label;
+        END IF;
+
+        SET STATEMENT0=CONCAT('DROP TABLE IF EXISTS ',TABLENAME,'_copy ;');
+        SET STATEMENT1=CONCAT('CREATE TABLE ',TABLENAME,'_copy LIKE ',database_name,'.',TABLENAME,';');
+		SET STATEMENT2=CONCAT('INSERT INTO ',TABLENAME,'_copy SELECT * FROM ',database_name,'.',TABLENAME,';');
+        
+        SET @STATE0 = STATEMENT0;
+        PREPARE OLD_TABLE_DROP FROM @STATE0;
+        EXECUTE OLD_TABLE_DROP ;
+        DEALLOCATE PREPARE OLD_TABLE_DROP;
+
+        SET @STATE1 = STATEMENT1;
+		PREPARE TABLE_CLONING FROM @STATE1;
+        EXECUTE TABLE_CLONING ;
+        DEALLOCATE PREPARE TABLE_CLONING;
+ 
+        SET @STATE2 = STATEMENT2;
+		PREPARE TABLE_INSERTION FROM @STATE2;
+        EXECUTE TABLE_INSERTION ;
+        DEALLOCATE PREPARE TABLE_INSERTION;
+
+    END LOOP loop_label; 
+	END //
+	DELIMITER ;
+	
+mysql> use d08lab;
+Database changed
+mysql> show tables;
++------------------+
+| Tables_in_d08lab |
++------------------+
+| countries_copy   |
+| departments_copy |
+| employees_copy   |
+| job_history_copy |
+| jobs_copy        |
+| locations_copy   |
+| regions_copy     |
++------------------+
+7 rows in set (0.01 sec)
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

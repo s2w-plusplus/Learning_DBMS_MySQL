@@ -1,0 +1,86 @@
+
+*******************************************************PL/SQL Basics**********************************************************************
+
+>>>>>>>>>>Practice 1:
+	Evaluate each of the following declarations.
+	Determine which of them are not legal and explain why?
+
+	 a.	 DECLARE    v_id INT(4);
+     b.  DECLARE    v_x , v_y,  v_z  VARCHAR(10);
+     c.  DECLARE   v_birthdate DATE;
+     d.  DECLARE   v_in_stock   BOOLEAN default 1;  
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 2:
+	What will be the output of the following program?
+
+	BEGIN
+	DECLARE v_data INT(7);
+	
+		SELECT v_data;
+	END;
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 3:
+	Consider the below PL/SQL code. What will be the values of the variables v_weight,
+	v_message and v_new_locn at point 1 and point 2
+
+
+    BEGIN
+      	DECLARE  v_weight INT (3) DEFAULT 600;
+        DECLARE v_message VARCHAR2(255) DEFAULT 'Product 10012';
+
+		BEGIN
+      		DECLARE  v_weight INT(3) DEFAULT 1;
+      		DECLARE  v_message VARCHAR2 (25) DEFAULT 'Product 11001';
+      		DECLARE  v_new_locn VARCHAR2(25) DEFAULT 'Europe';
+   		
+    		SET v_weight = v_weight +1;
+			SET v_new_locn ='Western ' ||v_new_locn; 
+			--  Point 1
+
+		END; 
+	SET v_weight=v_weight + 1;
+	SET v_message=v_message|| ' is in stock';
+	-- Point 2
+	END; 
+
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 4:  
+	Write a PL/SQL block that accepts values of two non zero integer Ints from user.
+	The block performs the following operation (first_Int/second_Int + second_Int). 
+	The result of the operation should be stored in a PL/SQL variable and also displayed on the screen.
+
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 5:
+	Declare two SQL* plus variables named MAX_SALARY and MIN_SALARY that are of data type INT.
+	Write a PL/SQL block that accepts deptno value from a user, selects the maximum salary and minimum salary 
+	paid in the department, from the EMP table and stores the corresponding values in MAX_SALARY and MIN_SALARY respectively. 
+	Use appropriate SQL * plus command to see the modified values of MAX_SALARY and MIN_SALARY
+
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 6: 
+	Write a PL/SQL block that accepts employee Int from a user and retrieves the salary for the employee from the EMP table. 
+	It determines the salary class as per the following criteria and displays the salary and salary class on the screen
+	Criteria for deciding salary class: 
+	•	If the salary is less than 2500, then it comes under the class 'LOW'
+	•	If the salary is greater than or equal to  2500 and less than 5000, then it comes under class 'MEDIUM'.
+	•	If the salary is greater than or equal to 5000, then it comes under class 'HIGH'
+
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 7:
+	Write a PL/SQL block that accepts an integer value between 1 and 12 from a user and displays the name of the corresponding month.
+	If the Int input  is not in the range +1 to +12 then the block should display the message “Invalid Month” on the screen
+
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 8:
+	Write a PL/SQL block that accepts employee Int from a user. Declare a PL/SQL record to store the employee Int, employee name,
+	department Int and the department name of the employee. Retrieve the values of these columns for the employee from the EMP 
+	and DEPT tables and display the employee name and the corresponding department name on the screen.
+------------------------------------------------------------------------------------------------------------------------------------------
+>>>>>>>>>>Practice 09:
+Write a PL/SQL block to add a department row in the DEPT table with the following values for columns
+	a.	The block retrieves the maximum value of deptno from the dept table and adds 1 to it to generate the value of deptno 
+	b.	Dname  value should be  'Education'
+	c.	Loc value should be NULL
+          
+		  
+------------------------------------------------------------------------------------------------------------------------------------------

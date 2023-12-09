@@ -1,0 +1,308 @@
+Procedure
+================================================================================================================================
+
+1. Prepare a program which can perform following operation
+	- Lookout for tables which has missing constraints
+	- Display list of those tables
+
+mysql> USE d08lab;
+Database changed
+mysql> DELIMITER //
+mysql> DROP PROCEDURE IF EXISTS assgn_proc_Q1 //
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+mysql> CREATE PROCEDURE assgn_proc_Q1()
+    -> BEGIN
+    -> SELECT TABLE_SCHEMA,TABLE_NAME FROM information_schema.TABLES AS tab
+    -> WHERE tab.table_type='BASE TABLE' AND tab.table_name NOT IN
+    -> (SELECT DISTINCT table_name FROM information_schema.TABLE_CONSTRAINTS);
+    -> END //
+Query OK, 0 rows affected (0.17 sec)
+mysql> DELIMITER ;
+mysql> CALL assgn_proc_Q1;
++--------------------+------------------------------------------+
+| TABLE_SCHEMA       | TABLE_NAME                               |
++--------------------+------------------------------------------+
+| d02lab             | importcsv                                |
+| mysql              | general_log                              |
+| mysql              | slow_log                                 |
+| performance_schema | binary_log_transaction_compression_stats |
+| performance_schema | data_lock_waits                          |
+| performance_schema | events_stages_history_long               |
+| performance_schema | events_statements_history_long           |
+| performance_schema | events_transactions_history_long         |
+| performance_schema | events_waits_history_long                |
+| performance_schema | keyring_component_status                 |
+| performance_schema | keyring_keys                             |
+| performance_schema | log_status                               |
+| performance_schema | performance_timers                       |
+| performance_schema | replication_applier_filters              |
+| performance_schema | replication_applier_global_filters       |
+| performance_schema | replication_group_member_stats           |
+| performance_schema | replication_group_members                |
+| performance_schema | tls_channel_status                       |
+| performance_schema | variables_info                           |
+| sales              | orders                                   |
+| sales              | salespeople                              |
+| scottschema        | bonus                                    |
+| scottschema        | dept                                     |
+| scottschema        | dummy                                    |
+| scottschema        | emp                                      |
+| scottschema        | emp2                                     |
+| scottschema        | salgrade                                 |
++--------------------+------------------------------------------+
+27 rows in set (0.05 sec)
+Query OK, 0 rows affected (0.15 sec)
+
+================================================================================================================================	
+
+2. Prepare a program to delete the data from emp. It will receive two inputs employee number and employee name.
+ If employee number is passed as null then delete the data based on employee name.
+	Backup the deleted data to employee_backup table.
+	
+mysql> USE humanresource;
+Database changed
+mysql> DELIMITER //
+mysql> DROP PROCEDURE IF EXISTS assgn_proc_Q2 //
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CREATE PROCEDURE `assgn_proc_Q2`(X int,Y varchar(46))
+    -> begin
+    -> declare mgrID int;
+    -> create table if not exists employee_backup like employees;
+    -> if x is not null then
+    -> 		insert into employee_backup select * from employees where employee_id=X;
+    -> 		update employees set manager_id=null where manager_id=X;
+    -> 		update departments set manager_id=null where manager_id=X;
+    ->      delete from employees where employee_id=X;
+    -> elseif Y is not null then
+    -> 		insert into employee_backup
+    -> 		select * from employees where concat(first_name,' ',last_name)=Y;
+    -> 		select manager_id into mgrID from employees where concat(first_name,' ',last_name)=Y;
+    -> 		update employees set manager_id=null where manager_id=mgrID;
+    -> 		delete from employees where concat(first_name,' ',last_name)=Y;
+    -> else
+    -> 		select 'failed' as operation_status;
+    -> end if;
+    -> end //
+Query OK, 0 rows affected (0.02 sec)
+
+-------> Scenario 1
+
+mysql> insert into employees values (300,'saurabh','wani','dfgagadb','9876543210','2021-03-25','AC_ACCOUNT',9999,null,205,110);
+Query OK, 1 row affected (0.03 sec)
+mysql> select * from employees where employee_id=300;
++-------------+------------+-----------+----------+--------------+------------+------------+---------+----------------+------------+---------------+
+| employee_id | first_name | last_name | email    | phone_number | hire_date  | job_id     | salary  | commission_pct | manager_id | department_id |
++-------------+------------+-----------+----------+--------------+------------+------------+---------+----------------+------------+---------------+
+|         300 | saurabh    | wani      | dfgagadb | 9876543210   | 2021-03-25 | AC_ACCOUNT | 9999.00 |           NULL |        205 |           110 |
++-------------+------------+-----------+----------+--------------+------------+------------+---------+----------------+------------+---------------+
+1 row in set (0.00 sec)
+mysql> call humanresource.assgn_proc_Q2(300,null);
+Query OK, 1 row affected (0.02 sec)
+mysql> select * from employee_backup;
++-------------+------------+-----------+----------+--------------+------------+------------+---------+----------------+------------+---------------+
+| employee_id | first_name | last_name | email    | phone_number | hire_date  | job_id     | salary  | commission_pct | manager_id | department_id |
++-------------+------------+-----------+----------+--------------+------------+------------+---------+----------------+------------+---------------+
+|         300 | saurabh    | wani      | dfgagadb | 9876543210   | 2021-03-25 | AC_ACCOUNT | 9999.00 |           NULL |        205 |           110 |
++-------------+------------+-----------+----------+--------------+------------+------------+---------+----------------+------------+---------------+
+1 row in set (0.00 sec)
+mysql> select * from employees where employee_id=300;
+Empty set (0.00 sec)
+
+-------> Scenario 2
+
+mysql> insert into employees values (300,'saurabh','wani','dfgagadb','9876543210','2021-03-25','AC_ACCOUNT',9999,null,205,110);
+Query OK, 1 row affected (0.03 sec)
+mysql> delete from employee_backup;
+Query OK, 1 row affected (0.03 sec)
+
+mysql> call humanresource.assgn_proc_Q2(null,'saurabh wani');
+Query OK, 1 row affected (0.04 sec)
+mysql> select * from employees where employee_id=300;
+Empty set (0.00 sec)
+mysql> select * from employee_backup;
++-------------+------------+-----------+----------+--------------+------------+------------+---------+----------------+------------+---------------+
+| employee_id | first_name | last_name | email    | phone_number | hire_date  | job_id     | salary  | commission_pct | manager_id | department_id |
++-------------+------------+-----------+----------+--------------+------------+------------+---------+----------------+------------+---------------+
+|         300 | saurabh    | wani      | dfgagadb | 9876543210   | 2021-03-25 | AC_ACCOUNT | 9999.00 |           NULL |        205 |           110 |
++-------------+------------+-----------+----------+--------------+------------+------------+---------+----------------+------------+---------------+
+1 row in set (0.00 sec)
+-------> Scenario 3
+
+mysql> call humanresource.assgn_proc_Q2(null,null);
++------------------+
+| operation_status |
++------------------+
+| failed           |
++------------------+
+1 row in set (0.01 sec)
+Query OK, 0 rows affected (0.01 sec)
+
+================================================================================================================================
+
+3. Prepare a program to insert new record in employee table. it will take the input of employee data.
+	If salary is provided as null then consider the salary as highest salary earned by any employee in same department.
+	If comm is not provided then assume it as 200$
+	
+mysql> USE humanresource;
+Database changed
+mysql> DELIMITER //
+mysql> DROP PROCEDURE IF EXISTS assgn_proc_Q3 //
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE PROCEDURE assgn_proc_Q3(e_id INT,f_name VARCHAR(20),l_name VARCHAR(25),em VARCHAR(25),ph_no VARCHAR(20),
+    -> h_date DATE,j_id VARCHAR(10),sal DECIMAL(8,2),comm_prcnt DECIMAL(2,2),mgr_id INT,dept_id INT)
+    -> BEGIN
+    -> DECLARE MX_SAL_DEPT DECIMAL(8,2);
+    -> DECLARE REVISED_COMM DECIMAL(2,2);
+    ->
+    -> SELECT MAX(salary) INTO MX_SAL_DEPT FROM employees WHERE department_id=dept_id;
+    -> SET REVISED_COMM= 200/sal;
+    -> INSERT INTO EMPLOYEES VALUES(e_id,f_name,l_name,em,ph_no,h_date,j_id,ifnull(sal,MX_SAL_DEPT),ifnull(comm_prcnt,REVISED_COMM),mgr_id,dept_id);
+    -> END//
+Query OK, 0 rows affected (0.03 sec)
+mysql> DELIMITER ;
+
+------->Scenario 1 (salary is null) 
+
+mysql> call humanresource.assgn_proc_Q3(300,'saurabh', 'wani', 'ssw@gmail.com', '9876543210', '2021-01-01','AD_VP',null,0.55,100,60);
+Query OK, 1 row affected, 5 warnings (0.02 sec)
+mysql> select * from employees where employee_id=300;
++-------------+------------+-----------+---------------+--------------+------------+--------+----------+----------------+------------+---------------+
+| employee_id | first_name | last_name | email         | phone_number | hire_date  | job_id | salary   | commission_pct | manager_id | department_id |
++-------------+------------+-----------+---------------+--------------+------------+--------+----------+----------------+------------+---------------+
+|         300 | saurabh    | wani      | ssw@gmail.com | 9876543210   | 2021-01-01 | AD_VP  | 10000.00 |           0.55 |        100 |            60 |
++-------------+------------+-----------+---------------+--------------+------------+--------+----------+----------------+------------+---------------+
+1 row in set (0.00 sec)
+
+------->Scenario 2 (comm is null)
+
+mysql> call humanresource.assgn_proc_Q3(301,'saurabh1', 'wani1', 'ssw1@gmail.com', '9876543211', '2021-01-02','AD_VP',20000,null,100,90);
+Query OK, 1 row affected (0.02 sec)
+
+mysql> select * from employees where employee_id=301;
++-------------+------------+-----------+----------------+--------------+------------+--------+----------+----------------+------------+---------------+
+| employee_id | first_name | last_name | email          | phone_number | hire_date  | job_id | salary   | commission_pct | manager_id | department_id |
++-------------+------------+-----------+----------------+--------------+------------+--------+----------+----------------+------------+---------------+
+|         301 | saurabh1   | wani1     | ssw1@gmail.com | 9876543211   | 2021-01-02 | AD_VP  | 20000.00 |           0.01 |        100 |            90 |
++-------------+------------+-----------+----------------+--------------+------------+--------+----------+----------------+------------+---------------+
+1 row in set (0.00 sec)
+
+================================================================================================================================
+
+4. Prepare a program to receive the input as table name and column name. Add primary key constraint on provided table's column.
+
+mysql> use humanresource;
+Database changed
+mysql> delimiter //
+mysql> DROP PROCEDURE IF EXISTS `assgn_proc_Q4` //
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+mysql> CREATE PROCEDURE assgn_proc_Q4(T_NAME VARCHAR(15),C_NAME VARCHAR(15))
+	-> BEGIN 
+	-> DECLARE TAB_NAME VARCHAR(15);
+	-> DECLARE COL_NAME VARCHAR(15); 
+	-> SET TAB_NAME=T_NAME;
+	-> SET COL_NAME=C_NAME;
+	-> SET @SQL=CONCAT('ALTER TABLE ',TAB_NAME,' ADD PRIMARY KEY (',COL_NAME,')');
+	-> PREPARE STMNT FROM @SQL;EXECUTE  STMNT;
+	-> DEALLOCATE PREPARE STMNT;
+	-> END//
+Query OK, 0 rows affected (0.01 sec)
+mysql> delimiter ;
+
+mysql> CREATE TABLE DUMMY_TABLE(
+	-> ID INT,
+	-> FULL_NAME VARCHAR(20)
+	-> );
+Query OK, 0 rows affected (0.11 sec)
+mysql> DESC dummy_table;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| ID        | int         | YES  |     | NULL    |       |
+| FULL_NAME | varchar(20) | YES  |     | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+mysql> CALL humanresource.assgn_proc_Q4('DUMMY_TABLE','ID');
+Query OK, 0 rows affected, 2 warnings (0.15 sec)
+mysql> DESC dummy_table;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| ID        | int         | NO   | PRI | NULL    |       |
+| FULL_NAME | varchar(20) | YES  |     | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+================================================================================================================================
+
+5. Prepare a program to list those employee who are earning less then avg of there deparment. 
+	This program may take input as (p_salary_fix BOOLEAN). If the input is given as true then these employees salary must be 
+	set to AVG Salary + 100$.
+
+mysql> USE d08lab;
+Database changed
+mysql> DELIMITER //
+mysql> DROP PROCEDURE IF EXISTS assgn_proc_Q5 //
+Query OK, 0 rows affected (0.17 sec)
+
+mysql> CREATE PROCEDURE assgn_proc_Q5()
+    -> BEGIN
+    -> SELECT e1.first_name,e1.last_name,e1.salary,e2.department_id,e2.avg_sal as avg_dept_sal
+    -> FROM humanresource.employees e1,(SELECT department_id,AVG(salary) avg_sal FROM humanresource.employees GROUP BY department_id) e2
+    -> WHERE e1.department_id = e2.department_id AND e1.salary > e2.avg_sal;
+    -> END //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql> CALL assgn_proc_Q5;
++------------+-----------+----------+---------------+--------------+
+| first_name | last_name | salary   | department_id | avg_dept_sal |
++------------+-----------+----------+---------------+--------------+
+| Steven     | King      | 24000.00 |            90 | 19333.333333 |
+| Alexander  | Hunold    |  9000.00 |            60 |  5760.000000 |
+| Bruce      | Ernst     |  6000.00 |            60 |  5760.000000 |
+| Nancy      | Greenberg | 12000.00 |           100 |  8600.000000 |
+| Daniel     | Faviet    |  9000.00 |           100 |  8600.000000 |
+| Den        | Raphaely  | 11000.00 |            30 |  4150.000000 |
+| Matthew    | Weiss     |  8000.00 |            50 |  3475.555556 |
+| Adam       | Fripp     |  8200.00 |            50 |  3475.555556 |
+| Payam      | Kaufling  |  7900.00 |            50 |  3475.555556 |
+| Shanta     | Vollman   |  6500.00 |            50 |  3475.555556 |
+| Kevin      | Mourgos   |  5800.00 |            50 |  3475.555556 |
+| Renske     | Ladwig    |  3600.00 |            50 |  3475.555556 |
+| Trenna     | Rajs      |  3500.00 |            50 |  3475.555556 |
+| John       | Russell   | 14000.00 |            80 |  8955.882353 |
+| Karen      | Partners  | 13500.00 |            80 |  8955.882353 |
+| Alberto    | Errazuriz | 12000.00 |            80 |  8955.882353 |
+| Gerald     | Cambrault | 11000.00 |            80 |  8955.882353 |
+| Eleni      | Zlotkey   | 10500.00 |            80 |  8955.882353 |
+| Peter      | Tucker    | 10000.00 |            80 |  8955.882353 |
+| David      | Bernstein |  9500.00 |            80 |  8955.882353 |
+| Peter      | Hall      |  9000.00 |            80 |  8955.882353 |
+| Janette    | King      | 10000.00 |            80 |  8955.882353 |
+| Patrick    | Sully     |  9500.00 |            80 |  8955.882353 |
+| Allan      | McEwen    |  9000.00 |            80 |  8955.882353 |
+| Clara      | Vishney   | 10500.00 |            80 |  8955.882353 |
+| Danielle   | Greene    |  9500.00 |            80 |  8955.882353 |
+| Lisa       | Ozer      | 11500.00 |            80 |  8955.882353 |
+| Harrison   | Bloom     | 10000.00 |            80 |  8955.882353 |
+| Tayler     | Fox       |  9600.00 |            80 |  8955.882353 |
+| Ellen      | Abel      | 11000.00 |            80 |  8955.882353 |
+| Nandita    | Sarchand  |  4200.00 |            50 |  3475.555556 |
+| Alexis     | Bull      |  4100.00 |            50 |  3475.555556 |
+| Kelly      | Chung     |  3800.00 |            50 |  3475.555556 |
+| Jennifer   | Dilly     |  3600.00 |            50 |  3475.555556 |
+| Sarah      | Bell      |  4000.00 |            50 |  3475.555556 |
+| Britney    | Everett   |  3900.00 |            50 |  3475.555556 |
+| Michael    | Hartstein | 13000.00 |            20 |  9500.000000 |
+| Shelley    | Higgins   | 12000.00 |           110 | 10150.000000 |
++------------+-----------+----------+---------------+--------------+
+38 rows in set (0.01 sec)
+
+Query OK, 0 rows affected (0.14 sec)
+
+
+================================================================================================================================
+
+

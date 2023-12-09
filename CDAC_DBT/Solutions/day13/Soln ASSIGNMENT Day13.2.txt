@@ -1,0 +1,785 @@
+------------------------------------------------------------------------------------------
+						**** SOME FREQUENTLY ASKED INTERVIEW QUESTIONS ****
+------------------------------------------------------------------------------------------
+Q1) CREATE A TABLE WITH DUPLICATE RECORDS AND WRITE A QUERY TO REMOVE DUPLICATE RECORDS.
+!! IF THERE WERE NO UNIQUE IDs HERE (ALL COLUMNS ARE IDENTICAL) SOLUTION WOULD HAVE BEEN VERY VERY HARD TO IMPLEMENT IN MYSQL
+mysql> SELECT * FROM d13lab.remove_duplicate_with_unique_key;
++----+------------------+----------------------------+
+| ID | name             | group                      |
++----+------------------+----------------------------+
+|  1 | Steve Rogers     | Avengers                   |
+|  2 | Groot            | Guardians of the Galaxy    |
+|  3 | Ronan            | Kree                       |
+|  4 | Yondu Udanta     | Ravagers                   |
+|  5 | Steven Strange   | Masters of the Mystic arts |
+|  6 | Nick Fury        | S.H.I.E.L.D                |
+|  7 | Steven Strange   | Masters of the Mystic arts |	<--- Duplicate
+|  8 | Okoye            | Dora Milaje                |
+|  9 | Alexander Pierce | Hydra                      |
+| 10 | Scrapper 142     | Valkyrie                   |
+| 11 | Nick Fury        | S.H.I.E.L.D                |	<--- Duplicate
+| 12 | Yondu Udanta     | Ravagers                   |	<--- Duplicate
+| 13 | Steven Strange   | Masters of the Mystic arts |	<--- Duplicate
+| 14 | Nick Fury        | S.H.I.E.L.D                |	<--- Duplicate
+| 15 | Alexander Pierce | Hydra                      |	<--- Duplicate
++----+------------------+----------------------------+
+15 rows in set (0.00 sec)
+>>
+mysql> DELETE FROM d13lab.remove_duplicate_with_unique_key WHERE ID NOT IN
+    -> (SELECT * FROM (SELECT MIN(ID) FROM d13lab.remove_duplicate_with_unique_key GROUP BY `name`,`group`)T);
+Query OK, 6 rows affected (0.08 sec)
+mysql> SELECT * FROM d13lab.remove_duplicate_with_unique_key;
++----+------------------+----------------------------+
+| ID | name             | group                      |
++----+------------------+----------------------------+
+|  1 | Steve Rogers     | Avengers                   |
+|  2 | Groot            | Guardians of the Galaxy    |
+|  3 | Ronan            | Kree                       |
+|  4 | Yondu Udanta     | Ravagers                   |
+|  5 | Steven Strange   | Masters of the Mystic arts |
+|  6 | Nick Fury        | S.H.I.E.L.D                |
+|  8 | Okoye            | Dora Milaje                |
+|  9 | Alexander Pierce | Hydra                      |
+| 10 | Scrapper 142     | Valkyrie                   |
++----+------------------+----------------------------+
+9 rows in set (0.00 sec)
+
+------------------------------------------------------------------------------------------
+Q2) What is Query to display Nth Record from Employee table?
+>>query to display 6th record
+mysql> SELECT * FROM humanresource.employees ORDER BY employee_id LIMIT 1 OFFSET 5 ;
++-------------+------------+-----------+---------+--------------+------------+---------+---------+----------------+------------+---------------+
+| employee_id | first_name | last_name | email   | phone_number | hire_date  | job_id  | salary  | commission_pct | manager_id | department_id |
++-------------+------------+-----------+---------+--------------+------------+---------+---------+----------------+------------+---------------+
+|         105 | David      | Austin    | DAUSTIN | 590.423.4569 | 1997-06-25 | IT_PROG | 4800.00 |           NULL |        103 |            60 |
++-------------+------------+-----------+---------+--------------+------------+---------+---------+----------------+------------+---------------+
+1 row in set (0.00 sec) 
+
+------------------------------------------------------------------------------------------
+Q3) How to get 3 Highest salary record from Employee table?
+>>soln using correlated subquery
+mysql> SELECT * FROM humanresource.employees hre1 WHERE 2 = (SELECT COUNT(*) FROM
+    -> ( SELECT * FROM humanresource.employees hre2 GROUP BY salary
+    -> HAVING hre2.salary > hre1.salary)T
+    -> );
++-------------+------------+-----------+---------+--------------------+------------+--------+----------+----------------+------------+---------------+
+| employee_id | first_name | last_name | email   | phone_number       | hire_date  | job_id | salary   | commission_pct | manager_id | department_id |
++-------------+------------+-----------+---------+--------------------+------------+--------+----------+----------------+------------+---------------+
+|         145 | John       | Russell   | JRUSSEL | 011.44.1344.429268 | 1996-10-01 | SA_MAN | 14000.00 |           0.40 |        100 |            80 |
++-------------+------------+-----------+---------+--------------------+------------+--------+----------+----------------+------------+---------------+
+1 row in set (0.03 sec)
+
+------------------------------------------------------------------------------------------
+Q4) What is the Query to fetch last record from the table?
+>> USING CTE
+mysql> WITH last_record_cte AS (
+    -> SELECT hr.*,ROW_NUMBER() OVER (ORDER BY employee_id) AS ROWIDS FROM humanresource.employees hr
+    -> )
+    -> SELECT * FROM last_record_cte WHERE ROWIDS = (SELECT MAX(ROWIDS) FROM last_record_cte);
++-------------+------------+-----------+--------+----------------+------------+------------+---------+----------------+------------+---------------+--------+
+| employee_id | first_name | last_name | email  | phone_number   | hire_date  | job_id     | salary  | commission_pct | manager_id | department_id | ROWIDS |
++-------------+------------+-----------+--------+----------------+------------+------------+---------+----------------+------------+---------------+--------+
+|         206 | William    | Gietz     | WGIETZ | 51hr5.123.8181 | 1994-06-07 | AC_ACCOUNT | 8300.00 |           NULL |        205 |           110 |    107 |
++-------------+------------+-----------+--------+----------------+------------+------------+---------+----------------+------------+---------------+--------+
+1 row in set (0.01 sec)
+
+------------------------------------------------------------------------------------------
+Q5) How to Display Odd rows in Employee table?
+>>
+mysql> SELECT * FROM  humanresource.employees WHERE employee_id%2 != 0;
++-------------+-------------+------------+----------+--------------------+------------+------------+----------+----------------+------------+---------------+
+| employee_id | first_name  | last_name  | email    | phone_number       | hire_date  | job_id     | salary   | commission_pct | manager_id | department_id |
++-------------+-------------+------------+----------+--------------------+------------+------------+----------+----------------+------------+---------------+
+|         101 | Neena       | Kochhar    | NKOCHHAR | 515.123.4568       | 1989-09-21 | AD_VP      | 17000.00 |           NULL |        100 |            90 |
+|         103 | Alexander   | Hunold     | AHUNOLD  | 590.423.4567       | 1990-01-03 | IT_PROG    |  9000.00 |           NULL |        102 |            60 |
+|         105 | David       | Austin     | DAUSTIN  | 590.423.4569       | 1997-06-25 | IT_PROG    |  4800.00 |           NULL |        103 |            60 |
+|         107 | Diana       | Lorentz    | DLORENTZ | 590.423.5567       | 1999-02-07 | IT_PROG    |  4200.00 |           NULL |        103 |            60 |
+|         109 | Daniel      | Faviet     | DFAVIET  | 515.124.4169       | 1994-08-16 | FI_ACCOUNT |  9000.00 |           NULL |        108 |           100 |
+|         111 | Ismael      | Sciarra    | ISCIARRA | 515.124.4369       | 1997-09-30 | FI_ACCOUNT |  7700.00 |           NULL |        108 |           100 |
+|         113 | Luis        | Popp       | LPOPP    | 515.124.4567       | 1999-12-07 | FI_ACCOUNT |  6900.00 |           NULL |        108 |           100 |
+|         115 | Alexander   | Khoo       | AKHOO    | 515.127.4562       | 1995-05-18 | PU_CLERK   |  3100.00 |           NULL |        114 |            30 |
+|         117 | Sigal       | Tobias     | STOBIAS  | 515.127.4564       | 1997-07-24 | PU_CLERK   |  2800.00 |           NULL |        114 |            30 |
+|         119 | Karen       | Colmenares | KCOLMENA | 515.127.4566       | 1999-08-10 | PU_CLERK   |  2500.00 |           NULL |        114 |            30 |
+|         121 | Adam        | Fripp      | AFRIPP   | 650.123.2234       | 1997-04-10 | ST_MAN     |  8200.00 |           NULL |        100 |            50 |
+|         123 | Shanta      | Vollman    | SVOLLMAN | 650.123.4234       | 1997-10-10 | ST_MAN     |  6500.00 |           NULL |        100 |            50 |
+|         125 | Julia       | Nayer      | JNAYER   | 650.124.1214       | 1997-07-16 | ST_CLERK   |  3200.00 |           NULL |        120 |            50 |
+|         127 | James       | Landry     | JLANDRY  | 650.124.1334       | 1999-01-14 | ST_CLERK   |  2400.00 |           NULL |        120 |            50 |
+|         129 | Laura       | Bissot     | LBISSOT  | 650.124.5234       | 1997-08-20 | ST_CLERK   |  3300.00 |           NULL |        121 |            50 |
+|         131 | James       | Marlow     | JAMRLOW  | 650.124.7234       | 1997-02-16 | ST_CLERK   |  2500.00 |           NULL |        121 |            50 |
+|         133 | Jason       | Mallin     | JMALLIN  | 650.127.1934       | 1996-06-14 | ST_CLERK   |  3300.00 |           NULL |        122 |            50 |
+|         135 | Ki          | Gee        | KGEE     | 650.127.1734       | 1999-12-12 | ST_CLERK   |  2400.00 |           NULL |        122 |            50 |
+|         137 | Renske      | Ladwig     | RLADWIG  | 650.121.1234       | 1995-07-14 | ST_CLERK   |  3600.00 |           NULL |        123 |            50 |
+|         139 | John        | Seo        | JSEO     | 650.121.2019       | 1998-02-12 | ST_CLERK   |  2700.00 |           NULL |        123 |            50 |
+|         141 | Trenna      | Rajs       | TRAJS    | 650.121.8009       | 1995-10-17 | ST_CLERK   |  3500.00 |           NULL |        124 |            50 |
+|         143 | Randall     | Matos      | RMATOS   | 650.121.2874       | 1998-03-15 | ST_CLERK   |  2600.00 |           NULL |        124 |            50 |
+|         145 | John        | Russell    | JRUSSEL  | 011.44.1344.429268 | 1996-10-01 | SA_MAN     | 14000.00 |           0.40 |        100 |            80 |
+|         147 | Alberto     | Errazuriz  | AERRAZUR | 011.44.1344.429278 | 1997-03-10 | SA_MAN     | 12000.00 |           0.30 |        100 |            80 |
+|         149 | Eleni       | Zlotkey    | EZLOTKEY | 011.44.1344.429018 | 2000-01-29 | SA_MAN     | 10500.00 |           0.20 |        100 |            80 |
+|         151 | David       | Bernstein  | DBERNSTE | 011.44.1344.345268 | 1997-03-24 | SA_REP     |  9500.00 |           0.25 |        145 |            80 |
+|         153 | Christopher | Olsen      | COLSEN   | 011.44.1344.498718 | 1998-03-30 | SA_REP     |  8000.00 |           0.20 |        145 |            80 |
+|         155 | Oliver      | Tuvault    | OTUVAULT | 011.44.1344.486508 | 1999-11-23 | SA_REP     |  7000.00 |           0.15 |        145 |            80 |
+|         157 | Patrick     | Sully      | PSULLY   | 011.44.1345.929268 | 1996-03-04 | SA_REP     |  9500.00 |           0.35 |        146 |            80 |
+|         159 | Lindsey     | Smith      | LSMITH   | 011.44.1345.729268 | 1997-03-10 | SA_REP     |  8000.00 |           0.30 |        146 |            80 |
+|         161 | Sarath      | Sewall     | SSEWALL  | 011.44.1345.529268 | 1998-11-03 | SA_REP     |  7000.00 |           0.25 |        146 |            80 |
+|         163 | Danielle    | Greene     | DGREENE  | 011.44.1346.229268 | 1999-03-19 | SA_REP     |  9500.00 |           0.15 |        147 |            80 |
+|         165 | David       | Lee        | DLEE     | 011.44.1346.529268 | 2000-02-23 | SA_REP     |  6800.00 |           0.10 |        147 |            80 |
+|         167 | Amit        | Banda      | ABANDA   | 011.44.1346.729268 | 2000-04-21 | SA_REP     |  6200.00 |           0.10 |        147 |            80 |
+|         169 | Harrison    | Bloom      | HBLOOM   | 011.44.1343.829268 | 1998-03-23 | SA_REP     | 10000.00 |           0.20 |        148 |            80 |
+|         171 | William     | Smith      | WSMITH   | 011.44.1343.629268 | 1999-02-23 | SA_REP     |  7400.00 |           0.15 |        148 |            80 |
+|         173 | Sundita     | Kumar      | SKUMAR   | 011.44.1343.329268 | 2000-04-21 | SA_REP     |  6100.00 |           0.10 |        148 |            80 |
+|         175 | Alyssa      | Hutton     | AHUTTON  | 011.44.1644.429266 | 1997-03-19 | SA_REP     |  8800.00 |           0.25 |        149 |            80 |
+|         177 | Jack        | Livingston | JLIVINGS | 011.44.1644.429264 | 1998-04-23 | SA_REP     |  8400.00 |           0.20 |        149 |            80 |
+|         179 | Charles     | Johnson    | CJOHNSON | 011.44.1644.429262 | 2000-01-04 | SA_REP     |  6200.00 |           0.10 |        149 |            80 |
+|         181 | Jean        | Fleaur     | JFLEAUR  | 650.507.9877       | 1998-02-23 | SH_CLERK   |  3100.00 |           NULL |        120 |            50 |
+|         183 | Girard      | Geoni      | GGEONI   | 650.507.9879       | 2000-02-03 | SH_CLERK   |  2800.00 |           NULL |        120 |            50 |
+|         185 | Alexis      | Bull       | ABULL    | 650.509.2876       | 1997-02-20 | SH_CLERK   |  4100.00 |           NULL |        121 |            50 |
+|         187 | Anthony     | Cabrio     | ACABRIO  | 650.509.4876       | 1999-02-07 | SH_CLERK   |  3000.00 |           NULL |        121 |            50 |
+|         189 | Jennifer    | Dilly      | JDILLY   | 650.505.2876       | 1997-08-13 | SH_CLERK   |  3600.00 |           NULL |        122 |            50 |
+|         191 | Randall     | Perkins    | RPERKINS | 650.505.4876       | 1999-12-19 | SH_CLERK   |  2500.00 |           NULL |        122 |            50 |
+|         193 | Britney     | Everett    | BEVERETT | 650.501.2876       | 1997-03-03 | SH_CLERK   |  3900.00 |           NULL |        123 |            50 |
+|         195 | Vance       | Jones      | VJONES   | 650.501.4876       | 1999-03-17 | SH_CLERK   |  2800.00 |           NULL |        123 |            50 |
+|         197 | Kevin       | Feeney     | KFEENEY  | 650.507.9822       | 1998-05-23 | SH_CLERK   |  3000.00 |           NULL |        124 |            50 |
+|         199 | Douglas     | Grant      | DGRANT   | 650.507.9844       | 2000-01-13 | SH_CLERK   |  2600.00 |           NULL |        124 |            50 |
+|         201 | Michael     | Hartstein  | MHARTSTE | 515.123.5555       | 1996-02-17 | MK_MAN     | 13000.00 |           NULL |        100 |            20 |
+|         203 | Susan       | Mavris     | SMAVRIS  | 515.123.7777       | 1994-06-07 | HR_REP     |  6500.00 |           NULL |        101 |            40 |
+|         205 | Shelley     | Higgins    | SHIGGINS | 515.123.8080       | 1994-06-07 | AC_MGR     | 12000.00 |           NULL |        101 |           110 |
++-------------+-------------+------------+----------+--------------------+------------+------------+----------+----------------+------------+---------------+
+53 rows in set (0.00 sec)
+------------------------------------------------------------------------------------------
+Q6) How to fetch 3rd highest salary using Rank Function?
+>> answer using window function (other methods exists)
+mysql> SELECT T.SALARY FROM (SELECT first_name,last_name,salary,dense_rank() OVER (ORDER BY salary DESC)
+    -> AS `RANK` FROM humanresource.employees)T WHERE T.`RANK` =3;
++----------+
+| SALARY   |
++----------+
+| 14000.00 |
++----------+
+1 row in set (0.00 sec)
+
+------------------------------------------------------------------------------------------
+Q7) Display first 50% records from Employee table?
+>>using window function
+mysql> SELECT * FROM (SELECT hr.*,NTILE(2) OVER (ORDER BY employee_id) `bucket`
+    -> FROM humanresource.employees hr)T WHERE bucket = 2;
++-------------+------------+------------+----------+--------------------+------------+------------+----------+----------------+------------+---------------+--------+
+| employee_id | first_name | last_name  | email    | phone_number       | hire_date  | job_id     | salary   | commission_pct | manager_id | department_id | bucket |
++-------------+------------+------------+----------+--------------------+------------+------------+----------+----------------+------------+---------------+--------+
+|         154 | Nanette    | Cambrault  | NCAMBRAU | 011.44.1344.987668 | 1998-12-09 | SA_REP     |  7500.00 |           0.20 |        145 |            80 |      2 |
+|         155 | Oliver     | Tuvault    | OTUVAULT | 011.44.1344.486508 | 1999-11-23 | SA_REP     |  7000.00 |           0.15 |        145 |            80 |      2 |
+|         156 | Janette    | King       | JKING    | 011.44.1345.429268 | 1996-01-30 | SA_REP     | 10000.00 |           0.35 |        146 |            80 |      2 |
+|         157 | Patrick    | Sully      | PSULLY   | 011.44.1345.929268 | 1996-03-04 | SA_REP     |  9500.00 |           0.35 |        146 |            80 |      2 |
+|         158 | Allan      | McEwen     | AMCEWEN  | 011.44.1345.829268 | 1996-08-01 | SA_REP     |  9000.00 |           0.35 |        146 |            80 |      2 |
+|         159 | Lindsey    | Smith      | LSMITH   | 011.44.1345.729268 | 1997-03-10 | SA_REP     |  8000.00 |           0.30 |        146 |            80 |      2 |
+|         160 | Louise     | Doran      | LDORAN   | 011.44.1345.629268 | 1997-12-15 | SA_REP     |  7500.00 |           0.30 |        146 |            80 |      2 |
+|         161 | Sarath     | Sewall     | SSEWALL  | 011.44.1345.529268 | 1998-11-03 | SA_REP     |  7000.00 |           0.25 |        146 |            80 |      2 |
+|         162 | Clara      | Vishney    | CVISHNEY | 011.44.1346.129268 | 1997-11-11 | SA_REP     | 10500.00 |           0.25 |        147 |            80 |      2 |
+|         163 | Danielle   | Greene     | DGREENE  | 011.44.1346.229268 | 1999-03-19 | SA_REP     |  9500.00 |           0.15 |        147 |            80 |      2 |
+|         164 | Mattea     | Marvins    | MMARVINS | 011.44.1346.329268 | 2000-01-24 | SA_REP     |  7200.00 |           0.10 |        147 |            80 |      2 |
+|         165 | David      | Lee        | DLEE     | 011.44.1346.529268 | 2000-02-23 | SA_REP     |  6800.00 |           0.10 |        147 |            80 |      2 |
+|         166 | Sundar     | Ande       | SANDE    | 011.44.1346.629268 | 2000-03-24 | SA_REP     |  6400.00 |           0.10 |        147 |            80 |      2 |
+|         167 | Amit       | Banda      | ABANDA   | 011.44.1346.729268 | 2000-04-21 | SA_REP     |  6200.00 |           0.10 |        147 |            80 |      2 |
+|         168 | Lisa       | Ozer       | LOZER    | 011.44.1343.929268 | 1997-03-11 | SA_REP     | 11500.00 |           0.25 |        148 |            80 |      2 |
+|         169 | Harrison   | Bloom      | HBLOOM   | 011.44.1343.829268 | 1998-03-23 | SA_REP     | 10000.00 |           0.20 |        148 |            80 |      2 |
+|         170 | Tayler     | Fox        | TFOX     | 011.44.1343.729268 | 1998-01-24 | SA_REP     |  9600.00 |           0.20 |        148 |            80 |      2 |
+|         171 | William    | Smith      | WSMITH   | 011.44.1343.629268 | 1999-02-23 | SA_REP     |  7400.00 |           0.15 |        148 |            80 |      2 |
+|         172 | Elizabeth  | Bates      | EBATES   | 011.44.1343.529268 | 1999-03-24 | SA_REP     |  7300.00 |           0.15 |        148 |            80 |      2 |
+|         173 | Sundita    | Kumar      | SKUMAR   | 011.44.1343.329268 | 2000-04-21 | SA_REP     |  6100.00 |           0.10 |        148 |            80 |      2 |
+|         174 | Ellen      | Abel       | EABEL    | 011.44.1644.429267 | 1996-05-11 | SA_REP     | 11000.00 |           0.30 |        149 |            80 |      2 |
+|         175 | Alyssa     | Hutton     | AHUTTON  | 011.44.1644.429266 | 1997-03-19 | SA_REP     |  8800.00 |           0.25 |        149 |            80 |      2 |
+|         176 | Jonathon   | Taylor     | JTAYLOR  | 011.44.1644.429265 | 1998-03-24 | SA_REP     |  8600.00 |           0.20 |        149 |            80 |      2 |
+|         177 | Jack       | Livingston | JLIVINGS | 011.44.1644.429264 | 1998-04-23 | SA_REP     |  8400.00 |           0.20 |        149 |            80 |      2 |
+|         178 | Kimberely  | Grant      | KGRANT   | 011.44.1644.429263 | 1999-05-24 | SA_REP     |  7000.00 |           0.15 |        149 |          NULL |      2 |
+|         179 | Charles    | Johnson    | CJOHNSON | 011.44.1644.429262 | 2000-01-04 | SA_REP     |  6200.00 |           0.10 |        149 |            80 |      2 |
+|         180 | Winston    | Taylor     | WTAYLOR  | 650.507.9876       | 1998-01-24 | SH_CLERK   |  3200.00 |           NULL |        120 |            50 |      2 |
+|         181 | Jean       | Fleaur     | JFLEAUR  | 650.507.9877       | 1998-02-23 | SH_CLERK   |  3100.00 |           NULL |        120 |            50 |      2 |
+|         182 | Martha     | Sullivan   | MSULLIVA | 650.507.9878       | 1999-06-21 | SH_CLERK   |  2500.00 |           NULL |        120 |            50 |      2 |
+|         183 | Girard     | Geoni      | GGEONI   | 650.507.9879       | 2000-02-03 | SH_CLERK   |  2800.00 |           NULL |        120 |            50 |      2 |
+|         184 | Nandita    | Sarchand   | NSARCHAN | 650.509.1876       | 1996-01-27 | SH_CLERK   |  4200.00 |           NULL |        121 |            50 |      2 |
+|         185 | Alexis     | Bull       | ABULL    | 650.509.2876       | 1997-02-20 | SH_CLERK   |  4100.00 |           NULL |        121 |            50 |      2 |
+|         186 | Julia      | Dellinger  | JDELLING | 650.509.3876       | 1998-06-24 | SH_CLERK   |  3400.00 |           NULL |        121 |            50 |      2 |
+|         187 | Anthony    | Cabrio     | ACABRIO  | 650.509.4876       | 1999-02-07 | SH_CLERK   |  3000.00 |           NULL |        121 |            50 |      2 |
+|         188 | Kelly      | Chung      | KCHUNG   | 650.505.1876       | 1997-06-14 | SH_CLERK   |  3800.00 |           NULL |        122 |            50 |      2 |
+|         189 | Jennifer   | Dilly      | JDILLY   | 650.505.2876       | 1997-08-13 | SH_CLERK   |  3600.00 |           NULL |        122 |            50 |      2 |
+|         190 | Timothy    | Gates      | TGATES   | 650.505.3876       | 1998-07-11 | SH_CLERK   |  2900.00 |           NULL |        122 |            50 |      2 |
+|         191 | Randall    | Perkins    | RPERKINS | 650.505.4876       | 1999-12-19 | SH_CLERK   |  2500.00 |           NULL |        122 |            50 |      2 |
+|         192 | Sarah      | Bell       | SBELL    | 650.501.1876       | 1996-02-04 | SH_CLERK   |  4000.00 |           NULL |        123 |            50 |      2 |
+|         193 | Britney    | Everett    | BEVERETT | 650.501.2876       | 1997-03-03 | SH_CLERK   |  3900.00 |           NULL |        123 |            50 |      2 |
+|         194 | Samuel     | McCain     | SMCCAIN  | 650.501.3876       | 1998-07-01 | SH_CLERK   |  3200.00 |           NULL |        123 |            50 |      2 |
+|         195 | Vance      | Jones      | VJONES   | 650.501.4876       | 1999-03-17 | SH_CLERK   |  2800.00 |           NULL |        123 |            50 |      2 |
+|         196 | Alana      | Walsh      | AWALSH   | 650.507.9811       | 1998-04-24 | SH_CLERK   |  3100.00 |           NULL |        124 |            50 |      2 |
+|         197 | Kevin      | Feeney     | KFEENEY  | 650.507.9822       | 1998-05-23 | SH_CLERK   |  3000.00 |           NULL |        124 |            50 |      2 |
+|         198 | Donald     | OConnell   | DOCONNEL | 650.507.9833       | 1999-06-21 | SH_CLERK   |  2600.00 |           NULL |        124 |            50 |      2 |
+|         199 | Douglas    | Grant      | DGRANT   | 650.507.9844       | 2000-01-13 | SH_CLERK   |  2600.00 |           NULL |        124 |            50 |      2 |
+|         200 | Jennifer   | Whalen     | JWHALEN  | 515.123.4444       | 1987-09-17 | AD_ASST    |  4400.00 |           NULL |        101 |            10 |      2 |
+|         201 | Michael    | Hartstein  | MHARTSTE | 515.123.5555       | 1996-02-17 | MK_MAN     | 13000.00 |           NULL |        100 |            20 |      2 |
+|         202 | Pat        | Fay        | PFAY     | 603.123.6666       | 1997-08-17 | MK_REP     |  6000.00 |           NULL |        201 |            20 |      2 |
+|         203 | Susan      | Mavris     | SMAVRIS  | 515.123.7777       | 1994-06-07 | HR_REP     |  6500.00 |           NULL |        101 |            40 |      2 |
+|         204 | Hermann    | Baer       | HBAER    | 515.123.8888       | 1994-06-07 | PR_REP     | 10000.00 |           NULL |        101 |            70 |      2 |
+|         205 | Shelley    | Higgins    | SHIGGINS | 515.123.8080       | 1994-06-07 | AC_MGR     | 12000.00 |           NULL |        101 |           110 |      2 |
+|         206 | William    | Gietz      | WGIETZ   | 51hr5.123.8181     | 1994-06-07 | AC_ACCOUNT |  8300.00 |           NULL |        205 |           110 |      2 |
++-------------+------------+------------+----------+--------------------+------------+------------+----------+----------------+------------+---------------+--------+
+53 rows in set (0.00 sec)
+
+------------------------------------------------------------------------------------------
+Q8) How Can i create table with same structure with data of Employee table?
+>>
+CREATE TABLE HR_COPY AS SELECT * FROM humanresource.employees;
+! Notice that Primary Key & FK constraints are not inherited..
+------------------------------------------------------------------------------------------
+Q9) How do i fetch only common records between 2 tables.
+USE d13lab;
+CREATE TABLE TABLE1(
+`name` Varchar(20), 
+`group` Varchar(40) 
+);
+INSERT INTO TABLE1 VALUES ('Steve Rogers','Avengers') ;
+INSERT INTO TABLE1 VALUES ('Groot','Guardians of the Galaxy') ;
+INSERT INTO TABLE1 VALUES ('Ronan','Kree') ;
+INSERT INTO TABLE1 VALUES ('Yondu Udanta','Ravagers') ;
+INSERT INTO TABLE1 VALUES ('Steven Strange','Masters of the Mystic arts') ;
+INSERT INTO TABLE1 VALUES ('Okoye','Dora Milaje') ;
+CREATE TABLE TABLE2(
+`name` Varchar(20), 
+`group` Varchar(40) 
+);
+INSERT INTO TABLE2 VALUES ('Yondu Udanta','Ravagers') ;
+INSERT INTO TABLE2 VALUES ('Steven Strange','Masters of the Mystic arts') ;
+INSERT INTO TABLE2 VALUES ('Okoye','Dora Milaje') ;
+INSERT INTO TABLE2 VALUES ('Alexander Pierce','Hydra') ;
+INSERT INTO TABLE2 VALUES ('Scrapper 142','Valkyrie') ;
+INSERT INTO TABLE2 VALUES ('Nick Fury','S.H.I.E.L.D') ;
+INSERT INTO TABLE2 VALUES ('Alexander Pierce','Hydra') ;
+INSERT INTO TABLE2 VALUES ('Steven Strange','Masters of the Mystic arts') ;
+>>
+mysql> SELECT DISTINCT * FROM table1 t1 INNER JOIN table2 t2 USING(`name`,`group`);
++----------------+----------------------------+
+| name           | group                      |
++----------------+----------------------------+
+| Yondu Udanta   | Ravagers                   |
+| Steven Strange | Masters of the Mystic arts |
+| Okoye          | Dora Milaje                |
++----------------+----------------------------+
+3 rows in set (0.00 sec)
+
+------------------------------------------------------------------------------------------
+Q10) How to get distinct records from the table without using distinct keyword.
+USE d13lab;
+CREATE TABLE show_distinct(
+`name` Varchar(20), 
+`group` Varchar(40) 
+);
+INSERT INTO show_distinct VALUES ('Steve Rogers','Avengers') ;
+INSERT INTO show_distinct VALUES ('Groot','Guardians of the Galaxy') ;
+INSERT INTO show_distinct VALUES ('Ronan','Kree') ;
+INSERT INTO show_distinct VALUES ('Yondu Udanta','Ravagers') ;
+INSERT INTO show_distinct VALUES ('Steven Strange','Masters of the Mystic arts') ;
+INSERT INTO show_distinct VALUES ('Okoye','Dora Milaje') ;
+INSERT INTO show_distinct VALUES ('Alexander Pierce','Hydra') ;
+INSERT INTO show_distinct VALUES ('Scrapper 142','Valkyrie') ;
+INSERT INTO show_distinct VALUES ('Nick Fury','S.H.I.E.L.D') ;
+
+INSERT INTO show_distinct VALUES ('Yondu Udanta','Ravagers') ;
+INSERT INTO show_distinct VALUES ('Steven Strange','Masters of the Mystic arts') ;
+>> simple solution using group by
+mysql> SELECT * FROM d13lab.show_distinct GROUP BY `name`,`group`;
++------------------+----------------------------+
+| name             | group                      |
++------------------+----------------------------+
+| Steve Rogers     | Avengers                   |
+| Groot            | Guardians of the Galaxy    |
+| Ronan            | Kree                       |
+| Yondu Udanta     | Ravagers                   |
+| Steven Strange   | Masters of the Mystic arts |
+| Okoye            | Dora Milaje                |
+| Alexander Pierce | Hydra                      |
+| Scrapper 142     | Valkyrie                   |
+| Nick Fury        | S.H.I.E.L.D                |
++------------------+----------------------------+
+9 rows in set (0.00 sec)
+
+>> complex solution using window function
+SELECT A.*,ROW_NUMBER() OVER (ORDER BY `name`,`group`) rowid FROM d13lab.show_distinct A WHERE rowid = 
+(SELECT MAX(ROW_NUMBER() OVER (ORDER BY `name`,`group`))  FROM d13lab.show_distinct B WHERE 
+	A.`name` = B.`name` AND A.`group` = B.`group`) ;
+------------------------------------------------------------------------------------------
+Q11) How to display following using query?
+
+	*
+   * *
+  * * *
+ ?? dont have a clue ?? 
+------------------------------------------------------------------------------------------
+Q12) How to add the email validation using only one query?
+>>
+SELECT * FROM humanresource.employees WHERE `email` NOT 
+REGEXP '^[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,63}$';
+
+------------------------------------------------------------------------------------------
+Q13) How to find count of duplicate rows?
+mysql> SELECT * FROM d13lab.remove_duplicate;
++------------------+----------------------------+
+| name             | group                      |
++------------------+----------------------------+
+| Steve Rogers     | Avengers                   |
+| Groot            | Guardians of the Galaxy    |
+| Ronan            | Kree                       |
+| Yondu Udanta     | Ravagers                   |
+| Steven Strange   | Masters of the Mystic arts |
+| Okoye            | Dora Milaje                |
+| Alexander Pierce | Hydra                      |
+| Scrapper 142     | Valkyrie                   |
+| Nick Fury        | S.H.I.E.L.D                |
+| Yondu Udanta     | Ravagers                   |
+| Steven Strange   | Masters of the Mystic arts |
+| Nick Fury        | S.H.I.E.L.D                |
+| Steven Strange   | Masters of the Mystic arts |
+| Nick Fury        | S.H.I.E.L.D                |
+| Nick Fury        | S.H.I.E.L.D                |
+| Nick Fury        | S.H.I.E.L.D                |
++------------------+----------------------------+
+16 rows in set (0.00 sec)
+mysql> SELECT T.`name`,T.`group`,MAX(T.Count)-1 AS `Duplicate Rows`FROM
+    -> (SELECT rd.*,ROW_NUMBER() OVER (PARTITION BY `name`,`group`) AS `Count` FROM d13lab.remove_duplicate AS rd)T
+    -> GROUP BY T.`name`,T.`group`;
++------------------+----------------------------+----------------+
+| name             | group                      | Duplicate Rows |
++------------------+----------------------------+----------------+
+| Alexander Pierce | Hydra                      |              0 |
+| Groot            | Guardians of the Galaxy    |              0 |
+| Nick Fury        | S.H.I.E.L.D                |              4 |
+| Okoye            | Dora Milaje                |              0 |
+| Ronan            | Kree                       |              0 |
+| Scrapper 142     | Valkyrie                   |              0 |
+| Steve Rogers     | Avengers                   |              0 |
+| Steven Strange   | Masters of the Mystic arts |              2 |
+| Yondu Udanta     | Ravagers                   |              1 |
++------------------+----------------------------+----------------+
+9 rows in set (0.00 sec)
+
+------------------------------------------------------------------------------------------
+Q14) Write an SQL query to find the count of the total occurrences of a particular 
+character – ‘n’ in the FullName field.
+>>
+mysql> WITH X AS
+    -> (SELECT employee_id,CONCAT(first_name,' ',last_name) AS Fullname FROM humanresource.employees)
+    -> SELECT X.*,LENGTH(X.Fullname)-LENGTH(REPLACE(Lower(X.Fullname),'n','')) AS `No of 'n's in fullname` FROM X;
++-------------+-------------------+------------------------+
+| employee_id | Fullname          | No of 'n's in fullname |
++-------------+-------------------+------------------------+
+|         100 | Steven King       |                      2 |
+|         101 | Neena Kochhar     |                      2 |
+|         102 | Lex De Haan       |                      1 |
+|         103 | Alexander Hunold  |                      2 |
+|         104 | Bruce Ernst       |                      1 |
+|         105 | David Austin      |                      1 |
+|         106 | Valli Pataballa   |                      0 |
+|         107 | Diana Lorentz     |                      2 |
+|         108 | Nancy Greenberg   |                      3 |
+|         109 | Daniel Faviet     |                      1 |
+|         110 | John Chen         |                      2 |
+|         111 | Ismael Sciarra    |                      0 |
+|         112 | Jose Manuel Urman |                      2 |
+|         113 | Luis Popp         |                      0 |
+|         114 | Den Raphaely      |                      1 |
+|         115 | Alexander Khoo    |                      1 |
+|         116 | Shelli Baida      |                      0 |
+|         117 | Sigal Tobias      |                      0 |
+|         118 | Guy Himuro        |                      0 |
+|         119 | Karen Colmenares  |                      2 |
+|         120 | Matthew Weiss     |                      0 |
+|         121 | Adam Fripp        |                      0 |
+|         122 | Payam Kaufling    |                      1 |
+|         123 | Shanta Vollman    |                      2 |
+|         124 | Kevin Mourgos     |                      1 |
+|         125 | Julia Nayer       |                      1 |
+|         126 | Irene Mikkilineni |                      3 |
+|         127 | James Landry      |                      1 |
+|         128 | Steven Markle     |                      1 |
+|         129 | Laura Bissot      |                      0 |
+|         130 | Mozhe Atkinson    |                      2 |
+|         131 | James Marlow      |                      0 |
+|         132 | TJ Olson          |                      1 |
+|         133 | Jason Mallin      |                      2 |
+|         134 | Michael Rogers    |                      0 |
+|         135 | Ki Gee            |                      0 |
+|         136 | Hazel Philtanker  |                      1 |
+|         137 | Renske Ladwig     |                      1 |
+|         138 | Stephen Stiles    |                      1 |
+|         139 | John Seo          |                      1 |
+|         140 | Joshua Patel      |                      0 |
+|         141 | Trenna Rajs       |                      2 |
+|         142 | Curtis Davies     |                      0 |
+|         143 | Randall Matos     |                      1 |
+|         144 | Peter Vargas      |                      0 |
+|         145 | John Russell      |                      1 |
+|         146 | Karen Partners    |                      2 |
+|         147 | Alberto Errazuriz |                      0 |
+|         148 | Gerald Cambrault  |                      0 |
+|         149 | Eleni Zlotkey     |                      1 |
+|         150 | Peter Tucker      |                      0 |
+|         151 | David Bernstein   |                      2 |
+|         152 | Peter Hall        |                      0 |
+|         153 | Christopher Olsen |                      1 |
+|         154 | Nanette Cambrault |                      2 |
+|         155 | Oliver Tuvault    |                      0 |
+|         156 | Janette King      |                      2 |
+|         157 | Patrick Sully     |                      0 |
+|         158 | Allan McEwen      |                      2 |
+|         159 | Lindsey Smith     |                      1 |
+|         160 | Louise Doran      |                      1 |
+|         161 | Sarath Sewall     |                      0 |
+|         162 | Clara Vishney     |                      1 |
+|         163 | Danielle Greene   |                      2 |
+|         164 | Mattea Marvins    |                      1 |
+|         165 | David Lee         |                      0 |
+|         166 | Sundar Ande       |                      2 |
+|         167 | Amit Banda        |                      1 |
+|         168 | Lisa Ozer         |                      0 |
+|         169 | Harrison Bloom    |                      1 |
+|         170 | Tayler Fox        |                      0 |
+|         171 | William Smith     |                      0 |
+|         172 | Elizabeth Bates   |                      0 |
+|         173 | Sundita Kumar     |                      1 |
+|         174 | Ellen Abel        |                      1 |
+|         175 | Alyssa Hutton     |                      1 |
+|         176 | Jonathon Taylor   |                      2 |
+|         177 | Jack Livingston   |                      2 |
+|         178 | Kimberely Grant   |                      1 |
+|         179 | Charles Johnson   |                      2 |
+|         180 | Winston Taylor    |                      2 |
+|         181 | Jean Fleaur       |                      1 |
+|         182 | Martha Sullivan   |                      1 |
+|         183 | Girard Geoni      |                      1 |
+|         184 | Nandita Sarchand  |                      3 |
+|         185 | Alexis Bull       |                      0 |
+|         186 | Julia Dellinger   |                      1 |
+|         187 | Anthony Cabrio    |                      2 |
+|         188 | Kelly Chung       |                      1 |
+|         189 | Jennifer Dilly    |                      2 |
+|         190 | Timothy Gates     |                      0 |
+|         191 | Randall Perkins   |                      2 |
+|         192 | Sarah Bell        |                      0 |
+|         193 | Britney Everett   |                      1 |
+|         194 | Samuel McCain     |                      1 |
+|         195 | Vance Jones       |                      2 |
+|         196 | Alana Walsh       |                      1 |
+|         197 | Kevin Feeney      |                      2 |
+|         198 | Donald OConnell   |                      3 |
+|         199 | Douglas Grant     |                      1 |
+|         200 | Jennifer Whalen   |                      3 |
+|         201 | Michael Hartstein |                      1 |
+|         202 | Pat Fay           |                      0 |
+|         203 | Susan Mavris      |                      1 |
+|         204 | Hermann Baer      |                      2 |
+|         205 | Shelley Higgins   |                      1 |
+|         206 | William Gietz     |                      0 |
++-------------+-------------------+------------------------+
+107 rows in set (0.00 sec)
+
+------------------------------------------------------------------------------------------
+Q15) Write an SQL query to fetch only even rows from the table.
+>>Repeat
+mysql> SELECT * FROM  humanresource.employees WHERE employee_id%2 = 0;
+------------------------------------------------------------------------------------------
+Q16) Write a query to display all the information for those employees whose id is any id 
+who earn the second highest salary.
+>>	
+mysql> SELECT * FROM  humanresource.employees WHERE salary =
+    -> (SELECT MAX(salary) FROM humanresource.employees WHERE salary <>
+    -> (SELECT MAX(salary) FROM humanresource.employees));
++-------------+------------+-----------+----------+--------------+------------+--------+----------+----------------+------------+---------------+
+| employee_id | first_name | last_name | email    | phone_number | hire_date  | job_id | salary   | commission_pct | manager_id | department_id |
++-------------+------------+-----------+----------+--------------+------------+--------+----------+----------------+------------+---------------+
+|         101 | Neena      | Kochhar   | NKOCHHAR | 515.123.4568 | 1989-09-21 | AD_VP  | 17000.00 |           NULL |        100 |            90 |
+|         102 | Lex        | De Haan   | LDEHAAN  | 515.123.4569 | 1993-01-13 | AD_VP  | 17000.00 |           NULL |        100 |            90 |
++-------------+------------+-----------+----------+--------------+------------+--------+----------+----------------+------------+---------------+
+2 rows in set (0.00 sec)
+
+------------------------------------------------------------------------------------------
+Q17) Write a query to display the employee ID and name ( first name and last name ) 
+of all employees who works in such a department where the employees are working whose 
+name containing a letter 'T'
+>>
+mysql> SELECT concat(first_name,' ',last_name) AS `Fullname` FROM humanresource.employees
+    -> WHERE department_id IN
+    -> (SELECT DISTINCT department_id fname FROM humanresource.employees
+    -> WHERE concat(first_name,' ',last_name) like '%T%');
++-------------------+
+| Fullname          |
++-------------------+
+| Steven King       |
+| Neena Kochhar     |
+| Lex De Haan       |
+| Alexander Hunold  |
+| Bruce Ernst       |
+| David Austin      |
+| Valli Pataballa   |
+| Diana Lorentz     |
+| Nancy Greenberg   |
+| Daniel Faviet     |
+| John Chen         |
+| Ismael Sciarra    |
+| Jose Manuel Urman |
+| Luis Popp         |
+| Den Raphaely      |
+| Alexander Khoo    |
+| Shelli Baida      |
+| Sigal Tobias      |
+| Guy Himuro        |
+| Karen Colmenares  |
+| Matthew Weiss     |
+| Adam Fripp        |
+| Payam Kaufling    |
+| Shanta Vollman    |
+| Kevin Mourgos     |
+| Julia Nayer       |
+| Irene Mikkilineni |
+| James Landry      |
+| Steven Markle     |
+| Laura Bissot      |
+| Mozhe Atkinson    |
+| James Marlow      |
+| TJ Olson          |
+| Jason Mallin      |
+| Michael Rogers    |
+| Ki Gee            |
+| Hazel Philtanker  |
+| Renske Ladwig     |
+| Stephen Stiles    |
+| John Seo          |
+| Joshua Patel      |
+| Trenna Rajs       |
+| Curtis Davies     |
+| Randall Matos     |
+| Peter Vargas      |
+| John Russell      |
+| Karen Partners    |
+| Alberto Errazuriz |
+| Gerald Cambrault  |
+| Eleni Zlotkey     |
+| Peter Tucker      |
+| David Bernstein   |
+| Peter Hall        |
+| Christopher Olsen |
+| Nanette Cambrault |
+| Oliver Tuvault    |
+| Janette King      |
+| Patrick Sully     |
+| Allan McEwen      |
+| Lindsey Smith     |
+| Louise Doran      |
+| Sarath Sewall     |
+| Clara Vishney     |
+| Danielle Greene   |
+| Mattea Marvins    |
+| David Lee         |
+| Sundar Ande       |
+| Amit Banda        |
+| Lisa Ozer         |
+| Harrison Bloom    |
+| Tayler Fox        |
+| William Smith     |
+| Elizabeth Bates   |
+| Sundita Kumar     |
+| Ellen Abel        |
+| Alyssa Hutton     |
+| Jonathon Taylor   |
+| Jack Livingston   |
+| Charles Johnson   |
+| Winston Taylor    |
+| Jean Fleaur       |
+| Martha Sullivan   |
+| Girard Geoni      |
+| Nandita Sarchand  |
+| Alexis Bull       |
+| Julia Dellinger   |
+| Anthony Cabrio    |
+| Kelly Chung       |
+| Jennifer Dilly    |
+| Timothy Gates     |
+| Randall Perkins   |
+| Sarah Bell        |
+| Britney Everett   |
+| Samuel McCain     |
+| Vance Jones       |
+| Alana Walsh       |
+| Kevin Feeney      |
+| Donald OConnell   |
+| Douglas Grant     |
+| Michael Hartstein |
+| Pat Fay           |
+| Shelley Higgins   |
+| William Gietz     |
++-------------------+
+103 rows in set (0.00 sec)
+------------------------------------------------------------------------------------------
+Q18)Write a query to display the employee number, name( first name and last name ) and 
+job title for all employees whose salary is more than any salary of those employees whose
+ job title is PU_MAN. Exclude job title PU_MAN.
+>>
+mysql> SELECT employee_id,CONCAT(first_name,' ',last_name) AS `Fullname`,job_id FROM humanresource.employees
+    -> WHERE salary > ALL (SELECT salary FROM humanresource.employees WHERE job_id ='PU_MAN');
++-------------+-------------------+---------+
+| employee_id | Fullname          | job_id  |
++-------------+-------------------+---------+
+|         100 | Steven King       | AD_PRES |
+|         101 | Neena Kochhar     | AD_VP   |
+|         102 | Lex De Haan       | AD_VP   |
+|         108 | Nancy Greenberg   | FI_MGR  |
+|         145 | John Russell      | SA_MAN  |
+|         146 | Karen Partners    | SA_MAN  |
+|         147 | Alberto Errazuriz | SA_MAN  |
+|         168 | Lisa Ozer         | SA_REP  |
+|         201 | Michael Hartstein | MK_MAN  |
+|         205 | Shelley Higgins   | AC_MGR  |
++-------------+-------------------+---------+
+10 rows in set (0.00 sec)
+
+------------------------------------------------------------------------------------------
+Q19) Write a PL/SQL code to count the number of Sundays between the two inputted dates [start_date_inclusive,end_date_exclusive).
+>>
+USE d13lab;
+DELIMITER // 
+DROP FUNCTION IF EXISTS no_of_sundays//
+CREATE FUNCTION no_of_sundays(inclusive_startdt Date,exclusive_enddt Date)
+RETURNS INT
+DETERMINISTIC
+LABEL : BEGIN
+ 
+	-- DAYOFWEEK(date) :: Returns the weekday index for date (1 = Sunday, 2 = Monday, …, 7 = Saturday). 
+
+    DECLARE DAYS_BETWEEN INT;
+    DECLARE FULL_WEEKS INT;
+	
+    IF DATEDIFF(exclusive_enddt,inclusive_startdt) < 0 THEN
+		RETURN NULL;
+    ELSEIF DATEDIFF(exclusive_enddt,inclusive_startdt) = 0 THEN 
+		RETURN 0;
+    END IF;
+    
+	SELECT DATEDIFF(
+	
+	DATE_SUB(exclusive_enddt,INTERVAL DAYOFWEEK(exclusive_enddt)-1 DAY),
+	DATE_ADD(inclusive_startdt,INTERVAL IF(DAYOFWEEK(inclusive_startdt) = 1,0,8-DAYOFWEEK(inclusive_startdt)) DAY)
+				  
+				   ) INTO DAYS_BETWEEN;
+                    
+	IF DAYS_BETWEEN < 0 THEN
+		RETURN 0;
+	ELSEIF DAYS_BETWEEN = 0 THEN
+		IF DAYOFWEEK(exclusive_enddt) = 1 THEN
+			RETURN 0;
+        ELSE   
+			RETURN 1;
+        END IF;    
+	ELSE
+		SET FULL_WEEKS := DAYS_BETWEEN/7;
+		IF DAYOFWEEK(exclusive_enddt) = 1 THEN
+			RETURN FULL_WEEKS;
+		ELSE   
+			RETURN FULL_WEEKS + 1;
+        END IF; 
+   END IF;
+END LABEL // 
+DELIMITER ;
+
+mysql> SELECT hms.*,no_of_sundays(STDT,ENDT) AS 'No of Sundays' FROM how_many_sundays hms;
++------------+------------+---------------+
+| STDT       | ENDT       | No of Sundays |
++------------+------------+---------------+
+| 2021-12-18 | 2021-12-26 |             1 |
+| 2021-12-05 | 2021-12-05 |             0 |
+| 2021-12-15 | 2021-12-16 |             0 |
+| 2021-11-07 | 2022-01-02 |             8 |
+| 2021-12-18 | 2021-12-19 |             0 |
+| 2021-12-18 | 2021-12-20 |             1 |
+| 2021-10-01 | 2021-10-25 |             4 |
++------------+------------+---------------+
+7 rows in set (0.00 sec)
+------------------------------------------------------------------------------------------
+Q20) Write a PL/SQL code to find whether a given string is palindrome or not.
+>>
+USE d13lab;
+DELIMITER // 
+DROP PROCEDURE IF EXISTS is_palindrome//
+CREATE PROCEDURE is_palindrome(str_arg VARCHAR(50))
+BEGIN 
+	
+    SELECT REVERSE(str_arg) INTO @rev_str;
+	IF str_arg = @rev_str THEN 
+		SELECT 'Yes' AS 'Is It A Palindrome' ;
+	ELSE 
+		SELECT 'No' AS 'Is It A Palindrome';
+   END IF; 
+END //
+DELIMITER ;
+mysql> call is_palindrome('Step on no pets');
++--------------------+
+| Is It A Palindrome |
++--------------------+
+| Yes                |
++--------------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
+------------------------------------------------------------------------------------------
+Q21) Write PL/SQL program to find the sum of digits of a number.
+>>
+USE d13lab;
+DELIMITER // 
+DROP FUNCTION IF EXISTS sum_of_digits//
+CREATE FUNCTION sum_of_digits(num INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN 
+    DECLARE REMAINDER INT; 
+    DECLARE SUM INT DEFAULT 0;
+	SET REMAINDER = num;
+    WHILE REMAINDER != 0 DO
+		SET SUM = SUM + REMAINDER % 10 ;
+		SET REMAINDER = FLOOR(REMAINDER/10);  
+    END WHILE; 
+  RETURN SUM;
+END // 
+DELIMITER ;
+mysql> SELECT sum_of_digits(157348) AS 'SUM_OF_DIGITS';
++---------------+
+| SUM_OF_DIGITS |
++---------------+
+|            28 |
++---------------+
+1 row in set (0.00 sec)
+
+------------------------------------------------------------------------------------------
+Q22) Write a PL/SQL program using WHILE loop for calculating the average of the numbers 
+entered by user. Stop the entry of numbers whenever the user enters the number 0.
+
+?????? NO CLUE AS HOW TO DO IT IN MYSQL ??????
+
+SOMETHING LIKE THIS......
+
+DECLARE
+   n NUMBER;
+   average NUMBER :=0 ;
+   sum NUMBER :=0 ;
+   count NUMBER :=0 ;
+BEGIN
+   -- Take input from user
+   n := &input_number;
+   WHILE(n<>0)
+       LOOP
+           -- Increment count to find total elements
+           count := count+1;
+           -- Sum of elements entered
+           sum := sum+n;
+           -- Take input from user
+           n := &input_number;
+       END LOOP;
+   -- Average calculation
+   average := sum/count;
+   DBMS_OUTPUT.PUT_LINE(‘Average of entered numbers is ’||average);
+END;
+
+------------------------------------------------------------------------------------------

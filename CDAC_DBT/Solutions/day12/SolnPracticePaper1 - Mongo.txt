@@ -1,0 +1,150 @@
+* Create database EMP and Make Collection With name "EMPL" and Follow Queries 
+
+*Created Database
+> use emp
+ switched to DB emp
+ 
+*Create Collection
+> db.createCollection("empl")
+
+*Insert Records Into EMPL Collection
+> db.empl.insert([
+ {no:1,name:"ST",salary:2000,role:"OB"},
+ {no:2,name:"MSD",salary:1500,role:"WK"},
+ {no:3,name:"YS",salary:1000,role:"ALR"},
+ {no:4,name:"RD",salary:1000,role:"MOB"},
+ {no:5,name:"RS",salary:500,role:"OB"},
+ {no:6,name:"BK",salary:500,role:"MOB"},
+ {no:7,name:"VK",salary:300,role:"BW"},
+ {no:8,name:"JB",salary:400,role:"BW"},
+ {no:9,name:"HP",salary:400,role:"ALR"},
+ {no:10,name:"VS",salary:300,role:"OB"}])
+=======================================================================================================================================
+
+------------------------------------------------------------------------------------------------
+*Update Salary Of Employee where Name is "ST" by +8000
+> db.empl.find({name:'ST'})
+{ "_id" : ObjectId("61247fdde21c807cee78325f"), "no" : 1, "name" : "ST", "salary" : 2000, "role" : "OB" }
+> db.empl.update({name:'ST'},{$inc:{salary:8000}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.empl.find({name:'ST'})
+{ "_id" : ObjectId("61247fdde21c807cee78325f"), "no" : 1, "name" : "ST", "salary" : 10000, "role" : "OB" }
+
+------------------------------------------------------------------------------------------------
+
+*Update Salary Of All Employee by giving an increment of +4000 each
+> db.empl.update({},{$inc:{salary:4000}},{multi:true})
+WriteResult({ "nMatched" : 10, "nUpserted" : 0, "nModified" : 10 })
+------------------------------------------------------------------------------------------------
+
+*update role of "MSD" as "C from WK"
+> db.empl.update({name:'MSD'},{$set:{role:'C'}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.empl.find({name:'MSD'})
+{ "_id" : ObjectId("61247fdde21c807cee783260"), "no" : 2, "name" : "MSD", "salary" : 5500, "role" : "C" }
+------------------------------------------------------------------------------------------------
+
+*Add a New Field remark to document with name "RS" set Remark as WC
+> db.empl.update({name:'RS'},{$set:{remark:'WC'}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.empl.find({name:'RS'})
+{ "_id" : ObjectId("61247fdde21c807cee783263"), "no" : 5, "name" : "RS", "salary" : 4500, "role" : "OB", "remark" : "WC" }
+
+------------------------------------------------------------------------------------------------
+
+*Add a New Field As Number 11,name AK,Salary 10000,role coch without using insert statement. 
+ But for Doing So You should have a Record Added woth number 11.
+> db.empl.update({no:11},{$set:{name:'AK',salary:10000,role:'coach'}},{upsert:true})
+WriteResult({
+        "nMatched" : 0,
+        "nUpserted" : 1,
+        "nModified" : 0,
+        "_id" : ObjectId("6124870bfa9e448c428d90b9")
+})
+> db.empl.find({no:11})
+{ "_id" : ObjectId("6124870bfa9e448c428d90b9"), "no" : 11, "name" : "AK", "role" : "coach", "salary" : 10000 }
+------------------------------------------------------------------------------------------------
+
+*remove added New Field
+> db.empl.remove({no:11})
+WriteResult({ "nRemoved" : 1 })
+
+------------------------------------------------------------------------------------------------
+
+*Update the Field "RD" by multiplying the salary by 2
+> db.empl.update({name:'RD'},{$mul:{salary:2}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.empl.find({name:'RD'})
+{ "_id" : ObjectId("61247fdde21c807cee783262"), "no" : 4, "name" : "RD", "salary" : 10000, "role" : "MOB" }
+
+------------------------------------------------------------------------------------------------
+
+*To Find Document From the empl collection where name begins with S
+> db.empl.find({name:{$regex:'^S'}})
+{ "_id" : ObjectId("61247fdde21c807cee78325f"), "no" : 1, "name" : "ST", "salary" : 14000, "role" : "OB" }
+> db.empl.find({name:/^S/})
+{ "_id" : ObjectId("61247fdde21c807cee78325f"), "no" : 1, "name" : "ST", "salary" : 14000, "role" : "OB" }
+>
+------------------------------------------------------------------------------------------------
+
+*To Find Document From the empl collection where name begins with R
+> db.empl.find({name:/^R/})
+{ "_id" : ObjectId("61247fdde21c807cee783262"), "no" : 4, "name" : "RD", "salary" : 10000, "role" : "MOB" }
+{ "_id" : ObjectId("61247fdde21c807cee783263"), "no" : 5, "name" : "RS", "salary" : 4500, "role" : "OB", "remark" : "WC" }
+
+------------------------------------------------------------------------------------------------
+
+*To Find Document From the empl collection where name ends with K
+> db.empl.find({name:/K$/})
+{ "_id" : ObjectId("61247fdde21c807cee783264"), "no" : 6, "name" : "BK", "salary" : 4500, "role" : "MOB" }
+{ "_id" : ObjectId("61247fdde21c807cee783265"), "no" : 7, "name" : "VK", "salary" : 4300, "role" : "BW" }
+
+------------------------------------------------------------------------------------------------
+
+*To Find Document From the empl collection where name ends with D
+> db.empl.find({name:/D$/})
+{ "_id" : ObjectId("61247fdde21c807cee783260"), "no" : 2, "name" : "MSD", "salary" : 5500, "role" : "C" }
+{ "_id" : ObjectId("61247fdde21c807cee783262"), "no" : 4, "name" : "RD", "salary" : 10000, "role" : "MOB" }
+
+------------------------------------------------------------------------------------------------
+
+*To Find Document From the empl collection where name has S in any position
+> db.empl.find({name:/S/})
+{ "_id" : ObjectId("61247fdde21c807cee78325f"), "no" : 1, "name" : "ST", "salary" : 14000, "role" : "OB" }
+{ "_id" : ObjectId("61247fdde21c807cee783260"), "no" : 2, "name" : "MSD", "salary" : 5500, "role" : "C" }
+{ "_id" : ObjectId("61247fdde21c807cee783261"), "no" : 3, "name" : "YS", "salary" : 5000, "role" : "ALR" }
+{ "_id" : ObjectId("61247fdde21c807cee783263"), "no" : 5, "name" : "RS", "salary" : 4500, "role" : "OB", "remark" : "WC" }
+{ "_id" : ObjectId("61247fdde21c807cee783268"), "no" : 10, "name" : "VS", "salary" : 4300, "role" : "OB" } 
+------------------------------------------------------------------------------------------------
+
+
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+Regular Expression
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+(Note: Use Case insensitive query,For that write 'i' after '/' )
+
+* To Find Document From the empl collection where name begins with S
+> db.empl.find({name:/^S/i})
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+ Use of $in and $nin (in and notin)
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+(Note: There will not use {} braces in that $in and $nin)
+
+* Display Documents where in empl collection Field have OB,MOB 
+> db.empl.find({role:{$in:['OB','MOB']}})
+{ "_id" : ObjectId("61247fdde21c807cee78325f"), "no" : 1, "name" : "ST", "salary" : 14000, "role" : "OB" }
+{ "_id" : ObjectId("61247fdde21c807cee783262"), "no" : 4, "name" : "RD", "salary" : 10000, "role" : "MOB" }
+{ "_id" : ObjectId("61247fdde21c807cee783263"), "no" : 5, "name" : "RS", "salary" : 4500, "role" : "OB", "remark" : "WC" }
+{ "_id" : ObjectId("61247fdde21c807cee783264"), "no" : 6, "name" : "BK", "salary" : 4500, "role" : "MOB" }
+{ "_id" : ObjectId("61247fdde21c807cee783268"), "no" : 10, "name" : "VS", "salary" : 4300, "role" : "OB" }
+-----------------------------------------------------------------------------------------------------------------------------------------
+* Display Documents where in empl collection Field not have OB,MOB
+> db.empl.find({role:{$nin:['OB','MOB']}})
+{ "_id" : ObjectId("61247fdde21c807cee783260"), "no" : 2, "name" : "MSD", "salary" : 5500, "role" : "C" }
+{ "_id" : ObjectId("61247fdde21c807cee783261"), "no" : 3, "name" : "YS", "salary" : 5000, "role" : "ALR" }
+{ "_id" : ObjectId("61247fdde21c807cee783265"), "no" : 7, "name" : "VK", "salary" : 4300, "role" : "BW" }
+{ "_id" : ObjectId("61247fdde21c807cee783266"), "no" : 8, "name" : "JB", "salary" : 4400, "role" : "BW" }
+{ "_id" : ObjectId("61247fdde21c807cee783267"), "no" : 9, "name" : "HP", "salary" : 4400, "role" : "ALR" }
+-----------------------------------------------------------------------------------------------------------------------------------------

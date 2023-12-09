@@ -1,0 +1,532 @@
+
+1.The HR department needs a report of all employees. Write a query to display the last name, department number, and department name for all the employees.
+>>>>>>Reapeated!!!!!!!!!!!
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2. The HR department needs a report of employees in Toronto. Display the last name, job, department number, and the department name for all employees who work in Toronto.
+>>>>>>Reapeated!!!!!!!!!!!
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3. Create a report to display employees’ last name and employee number along with their manager’s last name and manager number. Label the columns Employee, Emp#,
+ Manager, and Mgr#, respectively. 
+>>>>>>Reapeated!!!!!!!!!!!
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4. WAQ to display all employees including King, who has no manager. Order the results by the employee number. 
+
+mysql> select concat(first_name,' ',last_name) as full_name from employees where manager_id is null;
++-------------+
+| full_name   |
++-------------+
+| Steven King |
++-------------+
+1 row in set (0.04 sec)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+5. Create a report for the HR department that displays employee last names, department numbers, and all the employees who work in the same department as a given employee.
+ Give each column an appropriate label. 
+mysql> select e1.last_name,concat(e2.first_name,' ',e2.last_name) as full_name_emps_from_same_dept from employees e1 right join employees e2 on e2.department_id=e1.department_id order by e1.last_name limit 20;
++-----------+-------------------------------+
+| last_name | full_name_emps_from_same_dept |
++-----------+-------------------------------+
+| NULL      | Kimberely Grant               |
+| Abel      | Gerald Cambrault              |
+| Abel      | Peter Tucker                  |
+| Abel      | Mattea Marvins                |
+| Abel      | Oliver Tuvault                |
+| Abel      | Peter Hall                    |
+| Abel      | Karen Partners                |
+| Abel      | Janette King                  |
+| Abel      | Danielle Greene               |
+| Abel      | David Bernstein               |
+| Abel      | Patrick Sully                 |
+| Abel      | Lindsey Smith                 |
+| Abel      | Alberto Errazuriz             |
+| Abel      | Allan McEwen                  |
+| Abel      | Nanette Cambrault             |
+| Abel      | Eleni Zlotkey                 |
+| Abel      | John Russell                  |
+| Abel      | Clara Vishney                 |
+| Abel      | Christopher Olsen             |
+| Abel      | Louise Doran                  |
++-----------+-------------------------------+
+20 rows in set (0.01 sec)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+6. The HR department needs a report on job grades and salaries. To familiarize yourself with the JOB_GRADES table, first show the structure of the JOB_GRADES table.
+ Then create a query that displays the name, job, department name, salary, and grade for all employees.
+>>>>>>>>>>>>>>where is JOB_GRADES table???????????
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+7. WAQ to determine the names of all the employees who were hired after Davies. Create a query to display the name and hire date of any employee hired after employee Davies.
+mysql> select concat(e1.first_name,' ',e1.last_name) as full_name,e1.hire_date from employees e1 where hire_date>(select hire_date from employees e2 where e2.last_name='davies');
++-------------------+------------+
+| full_name         | hire_date  |
++-------------------+------------+
+| David Austin      | 1997-06-25 |
+| Valli Pataballa   | 1998-02-05 |
+| Diana Lorentz     | 1999-02-07 |
+| John Chen         | 1997-09-28 |
+| Ismael Sciarra    | 1997-09-30 |
+| Jose Manuel Urman | 1998-03-07 |
+| Luis Popp         | 1999-12-07 |
+| Shelli Baida      | 1997-12-24 |
+| Sigal Tobias      | 1997-07-24 |
+| Guy Himuro        | 1998-11-15 |
+| Karen Colmenares  | 1999-08-10 |
+| Adam Fripp        | 1997-04-10 |
+| Shanta Vollman    | 1997-10-10 |
+| Kevin Mourgos     | 1999-11-16 |
+| Julia Nayer       | 1997-07-16 |
+| Irene Mikkilineni | 1998-09-28 |
+| James Landry      | 1999-01-14 |
+| Steven Markle     | 2000-03-08 |
+| Laura Bissot      | 1997-08-20 |
+| Mozhe Atkinson    | 1997-10-30 |
+| James Marlow      | 1997-02-16 |
+| TJ Olson          | 1999-04-10 |
+| Michael Rogers    | 1998-08-26 |
+| Ki Gee            | 1999-12-12 |
+| Hazel Philtanker  | 2000-02-06 |
+| Stephen Stiles    | 1997-10-26 |
+| John Seo          | 1998-02-12 |
+| Joshua Patel      | 1998-04-06 |
+| Randall Matos     | 1998-03-15 |
+| Peter Vargas      | 1998-07-09 |
+| Alberto Errazuriz | 1997-03-10 |
+| Gerald Cambrault  | 1999-10-15 |
+| Eleni Zlotkey     | 2000-01-29 |
+| Peter Tucker      | 1997-01-30 |
+| David Bernstein   | 1997-03-24 |
+| Peter Hall        | 1997-08-20 |
+| Christopher Olsen | 1998-03-30 |
+| Nanette Cambrault | 1998-12-09 |
+| Oliver Tuvault    | 1999-11-23 |
+| Lindsey Smith     | 1997-03-10 |
+| Louise Doran      | 1997-12-15 |
+| Sarath Sewall     | 1998-11-03 |
+| Clara Vishney     | 1997-11-11 |
+| Danielle Greene   | 1999-03-19 |
+| Mattea Marvins    | 2000-01-24 |
+| David Lee         | 2000-02-23 |
+| Sundar Ande       | 2000-03-24 |
+| Amit Banda        | 2000-04-21 |
+| Lisa Ozer         | 1997-03-11 |
+| Harrison Bloom    | 1998-03-23 |
+| Tayler Fox        | 1998-01-24 |
+| William Smith     | 1999-02-23 |
+| Elizabeth Bates   | 1999-03-24 |
+| Sundita Kumar     | 2000-04-21 |
+| Alyssa Hutton     | 1997-03-19 |
+| Jonathon Taylor   | 1998-03-24 |
+| Jack Livingston   | 1998-04-23 |
+| Kimberely Grant   | 1999-05-24 |
+| Charles Johnson   | 2000-01-04 |
+| Winston Taylor    | 1998-01-24 |
+| Jean Fleaur       | 1998-02-23 |
+| Martha Sullivan   | 1999-06-21 |
+| Girard Geoni      | 2000-02-03 |
+| Alexis Bull       | 1997-02-20 |
+| Julia Dellinger   | 1998-06-24 |
+| Anthony Cabrio    | 1999-02-07 |
+| Kelly Chung       | 1997-06-14 |
+| Jennifer Dilly    | 1997-08-13 |
+| Timothy Gates     | 1998-07-11 |
+| Randall Perkins   | 1999-12-19 |
+| Britney Everett   | 1997-03-03 |
+| Samuel McCain     | 1998-07-01 |
+| Vance Jones       | 1999-03-17 |
+| Alana Walsh       | 1998-04-24 |
+| Kevin Feeney      | 1998-05-23 |
+| Donald OConnell   | 1999-06-21 |
+| Douglas Grant     | 2000-01-13 |
+| Pat Fay           | 1997-08-17 |
++-------------------+------------+
+78 rows in set (0.00 sec)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+8. Write a query to display the last name and hire date of  any employee in the same department as Zlotkey. Exclude Zlotkey.
+mysql> select e1.last_name,e1.hire_date from employees e1 where e1.department_id=(select e2.department_id from employees e2 where e2.last_name='zlotkey') and e1.last_name<>'zlotkey';
++------------+------------+
+| last_name  | hire_date  |
++------------+------------+
+| Russell    | 1996-10-01 |
+| Partners   | 1997-01-05 |
+| Errazuriz  | 1997-03-10 |
+| Cambrault  | 1999-10-15 |
+| Tucker     | 1997-01-30 |
+| Bernstein  | 1997-03-24 |
+| Hall       | 1997-08-20 |
+| Olsen      | 1998-03-30 |
+| Cambrault  | 1998-12-09 |
+| Tuvault    | 1999-11-23 |
+| King       | 1996-01-30 |
+| Sully      | 1996-03-04 |
+| McEwen     | 1996-08-01 |
+| Smith      | 1997-03-10 |
+| Doran      | 1997-12-15 |
+| Sewall     | 1998-11-03 |
+| Vishney    | 1997-11-11 |
+| Greene     | 1999-03-19 |
+| Marvins    | 2000-01-24 |
+| Lee        | 2000-02-23 |
+| Ande       | 2000-03-24 |
+| Banda      | 2000-04-21 |
+| Ozer       | 1997-03-11 |
+| Bloom      | 1998-03-23 |
+| Fox        | 1998-01-24 |
+| Smith      | 1999-02-23 |
+| Bates      | 1999-03-24 |
+| Kumar      | 2000-04-21 |
+| Abel       | 1996-05-11 |
+| Hutton     | 1997-03-19 |
+| Taylor     | 1998-03-24 |
+| Livingston | 1998-04-23 |
+| Johnson    | 2000-01-04 |
++------------+------------+
+33 rows in set (0.00 sec)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+9. Create a query to display the employee numbers and last names of all employees who earn more than the average salary. Sort the results in ascending order of salary.
+mysql> select e1.employee_id,e1.last_name,e1.salary from employees e1 where e1.salary>(select avg(e.salary) from employees e) order by e1.salary;
++-------------+------------+----------+
+| employee_id | last_name  | salary   |
++-------------+------------+----------+
+|         203 | Mavris     |  6500.00 |
+|         123 | Vollman    |  6500.00 |
+|         165 | Lee        |  6800.00 |
+|         113 | Popp       |  6900.00 |
+|         155 | Tuvault    |  7000.00 |
+|         161 | Sewall     |  7000.00 |
+|         178 | Grant      |  7000.00 |
+|         164 | Marvins    |  7200.00 |
+|         172 | Bates      |  7300.00 |
+|         171 | Smith      |  7400.00 |
+|         160 | Doran      |  7500.00 |
+|         154 | Cambrault  |  7500.00 |
+|         111 | Sciarra    |  7700.00 |
+|         112 | Urman      |  7800.00 |
+|         122 | Kaufling   |  7900.00 |
+|         159 | Smith      |  8000.00 |
+|         153 | Olsen      |  8000.00 |
+|         120 | Weiss      |  8000.00 |
+|         110 | Chen       |  8200.00 |
+|         121 | Fripp      |  8200.00 |
+|         206 | Gietz      |  8300.00 |
+|         177 | Livingston |  8400.00 |
+|         176 | Taylor     |  8600.00 |
+|         175 | Hutton     |  8800.00 |
+|         103 | Hunold     |  9000.00 |
+|         109 | Faviet     |  9000.00 |
+|         158 | McEwen     |  9000.00 |
+|         152 | Hall       |  9000.00 |
+|         157 | Sully      |  9500.00 |
+|         151 | Bernstein  |  9500.00 |
+|         163 | Greene     |  9500.00 |
+|         170 | Fox        |  9600.00 |
+|         156 | King       | 10000.00 |
+|         150 | Tucker     | 10000.00 |
+|         169 | Bloom      | 10000.00 |
+|         204 | Baer       | 10000.00 |
+|         149 | Zlotkey    | 10500.00 |
+|         162 | Vishney    | 10500.00 |
+|         114 | Raphaely   | 11000.00 |
+|         148 | Cambrault  | 11000.00 |
+|         174 | Abel       | 11000.00 |
+|         168 | Ozer       | 11500.00 |
+|         108 | Greenberg  | 12000.00 |
+|         147 | Errazuriz  | 12000.00 |
+|         205 | Higgins    | 12000.00 |
+|         201 | Hartstein  | 13000.00 |
+|         146 | Partners   | 13500.00 |
+|         145 | Russell    | 14000.00 |
+|         101 | Kochhar    | 17000.00 |
+|         102 | De Haan    | 17000.00 |
+|         100 | King       | 24000.00 |
++-------------+------------+----------+
+51 rows in set (0.00 sec)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+10. Write a query that displays the employee numbers and last names of all employees who work in a department with any employee whose last name contains a 'u'. 
+mysql> select e1.employee_id,e1.last_name from employees e1 where e1.department_id in (select e2.department_id from employees e2 where e2.last_name like '%u%');
++-------------+-------------+
+| employee_id | last_name   |
++-------------+-------------+
+|         103 | Hunold      |
+|         104 | Ernst       |
+|         105 | Austin      |
+|         106 | Pataballa   |
+|         107 | Lorentz     |
+|         108 | Greenberg   |
+|         109 | Faviet      |
+|         110 | Chen        |
+|         111 | Sciarra     |
+|         112 | Urman       |
+|         113 | Popp        |
+|         114 | Raphaely    |
+|         115 | Khoo        |
+|         116 | Baida       |
+|         117 | Tobias      |
+|         118 | Himuro      |
+|         119 | Colmenares  |
+|         120 | Weiss       |
+|         121 | Fripp       |
+|         122 | Kaufling    |
+|         123 | Vollman     |
+|         124 | Mourgos     |
+|         125 | Nayer       |
+|         126 | Mikkilineni |
+|         127 | Landry      |
+|         128 | Markle      |
+|         129 | Bissot      |
+|         130 | Atkinson    |
+|         131 | Marlow      |
+|         132 | Olson       |
+|         133 | Mallin      |
+|         134 | Rogers      |
+|         135 | Gee         |
+|         136 | Philtanker  |
+|         137 | Ladwig      |
+|         138 | Stiles      |
+|         139 | Seo         |
+|         140 | Patel       |
+|         141 | Rajs        |
+|         142 | Davies      |
+|         143 | Matos       |
+|         144 | Vargas      |
+|         180 | Taylor      |
+|         181 | Fleaur      |
+|         182 | Sullivan    |
+|         183 | Geoni       |
+|         184 | Sarchand    |
+|         185 | Bull        |
+|         186 | Dellinger   |
+|         187 | Cabrio      |
+|         188 | Chung       |
+|         189 | Dilly       |
+|         190 | Gates       |
+|         191 | Perkins     |
+|         192 | Bell        |
+|         193 | Everett     |
+|         194 | McCain      |
+|         195 | Jones       |
+|         196 | Walsh       |
+|         197 | Feeney      |
+|         198 | OConnell    |
+|         199 | Grant       |
+|         145 | Russell     |
+|         146 | Partners    |
+|         147 | Errazuriz   |
+|         148 | Cambrault   |
+|         149 | Zlotkey     |
+|         150 | Tucker      |
+|         151 | Bernstein   |
+|         152 | Hall        |
+|         153 | Olsen       |
+|         154 | Cambrault   |
+|         155 | Tuvault     |
+|         156 | King        |
+|         157 | Sully       |
+|         158 | McEwen      |
+|         159 | Smith       |
+|         160 | Doran       |
+|         161 | Sewall      |
+|         162 | Vishney     |
+|         163 | Greene      |
+|         164 | Marvins     |
+|         165 | Lee         |
+|         166 | Ande        |
+|         167 | Banda       |
+|         168 | Ozer        |
+|         169 | Bloom       |
+|         170 | Fox         |
+|         171 | Smith       |
+|         172 | Bates       |
+|         173 | Kumar       |
+|         174 | Abel        |
+|         175 | Hutton      |
+|         176 | Taylor      |
+|         177 | Livingston  |
+|         179 | Johnson     |
++-------------+-------------+
+96 rows in set (0.03 sec)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+11. Display the last name, department number, and job ID of all employees whose	department location ID is 1700.
+mysql> select e1.last_name,e1.department_id,e1.job_id,d.location_id from employees e1 inner join departments d on e1.department_id=d.department_id having location_id=1700;
++------------+---------------+------------+-------------+
+| last_name  | department_id | job_id     | location_id |
++------------+---------------+------------+-------------+
+| Whalen     |            10 | AD_ASST    |        1700 |
+| Raphaely   |            30 | PU_MAN     |        1700 |
+| Khoo       |            30 | PU_CLERK   |        1700 |
+| Baida      |            30 | PU_CLERK   |        1700 |
+| Tobias     |            30 | PU_CLERK   |        1700 |
+| Himuro     |            30 | PU_CLERK   |        1700 |
+| Colmenares |            30 | PU_CLERK   |        1700 |
+| King       |            90 | AD_PRES    |        1700 |
+| Kochhar    |            90 | AD_VP      |        1700 |
+| De Haan    |            90 | AD_VP      |        1700 |
+| Greenberg  |           100 | FI_MGR     |        1700 |
+| Faviet     |           100 | FI_ACCOUNT |        1700 |
+| Chen       |           100 | FI_ACCOUNT |        1700 |
+| Sciarra    |           100 | FI_ACCOUNT |        1700 |
+| Urman      |           100 | FI_ACCOUNT |        1700 |
+| Popp       |           100 | FI_ACCOUNT |        1700 |
+| Higgins    |           110 | AC_MGR     |        1700 |
+| Gietz      |           110 | AC_ACCOUNT |        1700 |
++------------+---------------+------------+-------------+
+18 rows in set (0.00 sec)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+12. Display the last name and salary of every employee who reports to King.
+mysql> select e1.last_name,e1.salary from employees e1 where manager_id in (select employee_id from employees where manager_id is null);
++-----------+----------+
+| last_name | salary   |
++-----------+----------+
+| Kochhar   | 17000.00 |
+| De Haan   | 17000.00 |
+| Raphaely  | 11000.00 |
+| Weiss     |  8000.00 |
+| Fripp     |  8200.00 |
+| Kaufling  |  7900.00 |
+| Vollman   |  6500.00 |
+| Mourgos   |  5800.00 |
+| Russell   | 14000.00 |
+| Partners  | 13500.00 |
+| Errazuriz | 12000.00 |
+| Cambrault | 11000.00 |
+| Zlotkey   | 10500.00 |
+| Hartstein | 13000.00 |
++-----------+----------+
+14 rows in set (0.00 sec)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   
+13. Display the department number, last name, and job ID for every employee in the Executive department.
+mysql> select (select department_id from departments where department_name='Executive') as department_id,last_name,job_id from employees;
++---------------+-------------+------------+
+| department_id | last_name   | job_id     |
++---------------+-------------+------------+
+|            90 | King        | AD_PRES    |
+|            90 | Kochhar     | AD_VP      |
+|            90 | De Haan     | AD_VP      |
+|            90 | Hunold      | IT_PROG    |
+|            90 | Ernst       | IT_PROG    |
+|            90 | Austin      | IT_PROG    |
+|            90 | Pataballa   | IT_PROG    |
+|            90 | Lorentz     | IT_PROG    |
+|            90 | Greenberg   | FI_MGR     |
+|            90 | Faviet      | FI_ACCOUNT |
+|            90 | Chen        | FI_ACCOUNT |
+|            90 | Sciarra     | FI_ACCOUNT |
+|            90 | Urman       | FI_ACCOUNT |
+|            90 | Popp        | FI_ACCOUNT |
+|            90 | Raphaely    | PU_MAN     |
+|            90 | Khoo        | PU_CLERK   |
+|            90 | Baida       | PU_CLERK   |
+|            90 | Tobias      | PU_CLERK   |
+|            90 | Himuro      | PU_CLERK   |
+|            90 | Colmenares  | PU_CLERK   |
+|            90 | Weiss       | ST_MAN     |
+|            90 | Fripp       | ST_MAN     |
+|            90 | Kaufling    | ST_MAN     |
+|            90 | Vollman     | ST_MAN     |
+|            90 | Mourgos     | ST_MAN     |
+|            90 | Nayer       | ST_CLERK   |
+|            90 | Mikkilineni | ST_CLERK   |
+|            90 | Landry      | ST_CLERK   |
+|            90 | Markle      | ST_CLERK   |
+|            90 | Bissot      | ST_CLERK   |
+|            90 | Atkinson    | ST_CLERK   |
+|            90 | Marlow      | ST_CLERK   |
+|            90 | Olson       | ST_CLERK   |
+|            90 | Mallin      | ST_CLERK   |
+|            90 | Rogers      | ST_CLERK   |
+|            90 | Gee         | ST_CLERK   |
+|            90 | Philtanker  | ST_CLERK   |
+|            90 | Ladwig      | ST_CLERK   |
+|            90 | Stiles      | ST_CLERK   |
+|            90 | Seo         | ST_CLERK   |
+|            90 | Patel       | ST_CLERK   |
+|            90 | Rajs        | ST_CLERK   |
+|            90 | Davies      | ST_CLERK   |
+|            90 | Matos       | ST_CLERK   |
+|            90 | Vargas      | ST_CLERK   |
+|            90 | Russell     | SA_MAN     |
+|            90 | Partners    | SA_MAN     |
+|            90 | Errazuriz   | SA_MAN     |
+|            90 | Cambrault   | SA_MAN     |
+|            90 | Zlotkey     | SA_MAN     |
+|            90 | Tucker      | SA_REP     |
+|            90 | Bernstein   | SA_REP     |
+|            90 | Hall        | SA_REP     |
+|            90 | Olsen       | SA_REP     |
+|            90 | Cambrault   | SA_REP     |
+|            90 | Tuvault     | SA_REP     |
+|            90 | King        | SA_REP     |
+|            90 | Sully       | SA_REP     |
+|            90 | McEwen      | SA_REP     |
+|            90 | Smith       | SA_REP     |
+|            90 | Doran       | SA_REP     |
+|            90 | Sewall      | SA_REP     |
+|            90 | Vishney     | SA_REP     |
+|            90 | Greene      | SA_REP     |
+|            90 | Marvins     | SA_REP     |
+|            90 | Lee         | SA_REP     |
+|            90 | Ande        | SA_REP     |
+|            90 | Banda       | SA_REP     |
+|            90 | Ozer        | SA_REP     |
+|            90 | Bloom       | SA_REP     |
+|            90 | Fox         | SA_REP     |
+|            90 | Smith       | SA_REP     |
+|            90 | Bates       | SA_REP     |
+|            90 | Kumar       | SA_REP     |
+|            90 | Abel        | SA_REP     |
+|            90 | Hutton      | SA_REP     |
+|            90 | Taylor      | SA_REP     |
+|            90 | Livingston  | SA_REP     |
+|            90 | Grant       | SA_REP     |
+|            90 | Johnson     | SA_REP     |
+|            90 | Taylor      | SH_CLERK   |
+|            90 | Fleaur      | SH_CLERK   |
+|            90 | Sullivan    | SH_CLERK   |
+|            90 | Geoni       | SH_CLERK   |
+|            90 | Sarchand    | SH_CLERK   |
+|            90 | Bull        | SH_CLERK   |
+|            90 | Dellinger   | SH_CLERK   |
+|            90 | Cabrio      | SH_CLERK   |
+|            90 | Chung       | SH_CLERK   |
+|            90 | Dilly       | SH_CLERK   |
+|            90 | Gates       | SH_CLERK   |
+|            90 | Perkins     | SH_CLERK   |
+|            90 | Bell        | SH_CLERK   |
+|            90 | Everett     | SH_CLERK   |
+|            90 | McCain      | SH_CLERK   |
+|            90 | Jones       | SH_CLERK   |
+|            90 | Walsh       | SH_CLERK   |
+|            90 | Feeney      | SH_CLERK   |
+|            90 | OConnell    | SH_CLERK   |
+|            90 | Grant       | SH_CLERK   |
+|            90 | Whalen      | AD_ASST    |
+|            90 | Hartstein   | MK_MAN     |
+|            90 | Fay         | MK_REP     |
+|            90 | Mavris      | HR_REP     |
+|            90 | Baer        | PR_REP     |
+|            90 | Higgins     | AC_MGR     |
+|            90 | Gietz       | AC_ACCOUNT |
++---------------+-------------+------------+
+107 rows in set (0.00 sec)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+14. WAQ  to display the employee numbers, last names, and salaries of all employees who earn more than the average salary and who work in a department with any employee with 
+a u in their name. 
+>>>>>>>>>>>>>>>Repeated!!!!!!!!!!!!!!!!!!!!
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
